@@ -1,0 +1,17 @@
+{
+  "id":2208087,
+  "name":"dramatic_squirrel.mp4",
+  "description": "My video description",
+  "type":"Video",
+  "created":"2012-10-26T16:47:09+00:00",
+  "updated":"2012-10-26T16:47:10+00:00",
+  "duration":5.333000183105469,
+  "hashed_id":"gn69c10tqw",
+  "progress":0.0,
+  "thumbnail":
+  {
+    "url":"http://embed.wistia.com/deliveries/ffbada01610466e66f67a5dbbf473ed6574a6405.jpg?image_crop_resized=100x60",
+    "width":100,
+    "height":60
+  }
+}

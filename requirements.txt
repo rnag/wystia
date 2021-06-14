@@ -1,0 +1,3 @@
+requests
+requests-toolbelt
+urllib3     # should already be installed via requests
