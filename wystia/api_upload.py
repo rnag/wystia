@@ -4,11 +4,11 @@ from typing import Dict, Any, Optional
 from requests import HTTPError
 from requests_toolbelt import MultipartEncoder
 
-from .base_api import _BaseWistiaApi
-from .config.wistia import WistiaConfig
+from .api_base import _BaseWistiaApi
+from .config import WistiaConfig
 from .errors import UploadFailed
 from .log import LOG
-from .models.wistia import UploadResponse
+from .models import UploadResponse
 from .utils.decorators import retry_on_connection_error
 
 
@@ -39,11 +39,11 @@ class WistiaUploadApi(_BaseWistiaApi):
           If omitted, a new project will be created and uploaded to.
         :param title: Optional display name for the video. If omitted, the
           filename will be used instead.
-        :param description: Optional description for the video
-        :param max_retries: Maximum number of retries, in case we run into a
-          `BrokenPipeError` while uploading the video; defaults to 5.
+        :param description: Optional description for the video.
         :param contact_id: A Wistia contact id, an integer value. If omitted,
           it will default to the contact_id of the account’s owner.
+        :param max_retries: Maximum number of retries, in case we run into a
+          `BrokenPipeError` while uploading the video; defaults to 5.
         :raises UploadFailed: In case the upload operation fails; also logs
           error details from the Upload API response.
 
@@ -75,20 +75,18 @@ class WistiaUploadApi(_BaseWistiaApi):
                     description: Optional[str] = None,
                     contact_id: Optional[int] = None):
         """
-        Uploads a video link to Wistia, and returns the hashed ID of the newly
-        hosted video.
+        Uploads a public video link to Wistia, and returns the hashed ID of the
+        newly hosted video.
 
         Docs:
           https://wistia.com/support/developers/upload-api#the-request
 
-        :param url: The public link for the video.
+        :param url: A public, downloadable link for the video.
         :param project_id: The hashed id of the project to upload media into.
           If omitted, a new project will be created and uploaded to.
         :param title: Optional display name for the video. If omitted, the
           filename will be used instead.
-        :param description: Optional description for the video
-        :param max_retries: Maximum number of retries, in case we run into a
-          `BrokenPipeError` while uploading the video; defaults to 5.
+        :param description: Optional description for the video.
         :param contact_id: A Wistia contact id, an integer value. If omitted,
           it will default to the contact_id of the account’s owner.
         :raises UploadFailed: In case the upload operation fails; also logs
@@ -110,13 +108,13 @@ class WistiaUploadApi(_BaseWistiaApi):
         return UploadResponse(**data)
 
     @classmethod
-    def _upload_url_or_file_to_wistia(cls, data, headers=None) -> Dict[str, Any]:
+    def _upload_url_or_file_to_wistia(
+            cls, data, headers=None) -> Dict[str, Any]:
         """
         Passes a URL or a file to the Wistia Upload API.
         """
         # Make the API request to upload the video
         LOG.debug('Uploading to Wistia...')
-        # noinspection PyTypeChecker
         r = cls._get_session().request(
             'POST', '/', data=data, headers=headers)
         try:

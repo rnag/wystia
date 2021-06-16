@@ -1,7 +1,7 @@
 """
 Configs and settings for Wistia API
 """
-from ..constants import WISTIA_ACCOUNT
+from .constants import WISTIA_ACCOUNT
 
 
 class WistiaConfig:
@@ -12,9 +12,11 @@ class WistiaConfig:
 
     PROJECTS_URL = 'projects.json'
     PROJECTS_SHOW_URL = 'projects/{project_id}.json'
+    PROJECTS_COPY_URL = 'projects/{project_id}/copy.json'
     MEDIAS_URL = 'medias.json'
     MEDIAS_SHOW_URL = 'medias/{media_id}.json'
     MEDIAS_COPY_URL = 'medias/{media_id}/copy.json'
+    MEDIAS_STATS_URL = 'medias/{media_id}/stats.json'
     CUSTOMIZATION_URL = 'medias/{media_id}/customizations.json'
     CAPTIONS_ORDER_URL = 'medias/{media_id}/captions/purchase.json'
     ALL_CAPTIONS_URL = 'medias/{media_id}/captions.json'

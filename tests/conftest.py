@@ -1,3 +1,6 @@
+"""
+Common test fixtures and utilities
+"""
 from dataclasses import dataclass
 from typing import Union, List
 
@@ -9,13 +12,19 @@ from wystia.utils.parse import as_list
 @pytest.fixture(scope='session')
 def mock_video_id():
     """Returns a dummy hashed video ID for testing purposes."""
-    return 'abc1234567'
+    return 'abc-01234567'
 
 
 @pytest.fixture(scope='session')
 def mock_project_id():
     """Returns a dummy hashed project ID for testing purposes."""
-    return 'xyz7654321'
+    return 'xyz-76543210'
+
+
+@pytest.fixture(scope='session')
+def mock_api_token():
+    """Returns a dummy Wistia API token for testing purposes."""
+    return 'abc-xyz-123456789'
 
 
 @pytest.fixture(scope='session')
@@ -58,7 +67,8 @@ class TestsWithMarkSkipper:
 mark_skipper = TestsWithMarkSkipper(
     test_marks=['mutative', 'long'],
     cli_option_name="--run-all",
-    cli_option_help="run all test cases, including any potentially destructive tests",
+    cli_option_help="run all test cases, including any potentially "
+                    "destructive tests",
 )
 
 

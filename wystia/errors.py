@@ -2,9 +2,10 @@
 Project-specific exception classes
 """
 __all__ = ['WistiaError',
+           'ContentIsEmpty',
            'NoSuchProject',
            'NoSuchVideo',
-           'NoVideoCaptions',
+           'VideoHasCaptions',
            'UploadFailed']
 
 from requests import Response
@@ -37,11 +38,18 @@ class WistiaError(Exception):
         return format_error(self.message, self.code, self.ERR_STATUS)
 
 
+class ContentIsEmpty(WistiaError):
+
+    def __init__(self):
+        msg = 'The specified file content in the request is empty.'
+        super(ContentIsEmpty, self).__init__(msg)
+
+
 class NoSuchProject(WistiaError):
 
-    def __init__(self, video_id):
+    def __init__(self, project_id):
         msg = 'Project does not exist, or was deleted from Wistia.'
-        super(NoSuchProject, self).__init__(msg, video_id=video_id)
+        super(NoSuchProject, self).__init__(msg, project_id=project_id)
 
 
 class NoSuchVideo(WistiaError):
@@ -51,11 +59,11 @@ class NoSuchVideo(WistiaError):
         super(NoSuchVideo, self).__init__(msg, video_id=video_id)
 
 
-class NoVideoCaptions(WistiaError):
+class VideoHasCaptions(WistiaError):
 
     def __init__(self, video_id):
-        msg = 'No captions exist for the Wistia video.'
-        super(NoVideoCaptions, self).__init__(msg, video_id=video_id)
+        msg = 'English captions already exist for the Wistia video.'
+        super(VideoHasCaptions, self).__init__(msg, video_id=video_id)
 
 
 class UploadFailed(WistiaError):

@@ -1,4 +1,7 @@
 __all__ = ['LanguageCode',
+           'MediaType',
+           'SortBy',
+           'SortDir',
            'VideoStatus',
            'VideoData',
            'VideoEmbedData',
@@ -9,8 +12,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Dict, Union
 
-from ..log import LOG
-from ..utils.parse import get_srt_duration
+from .log import LOG
+from .utils.parse import get_srt_duration
 
 
 class LanguageCode(Enum):
@@ -24,6 +27,42 @@ class LanguageCode(Enum):
     ITALIAN = 'ita'
     SPANISH = 'spa'
     JAPANESE = 'jpn'
+
+
+class MediaType(Enum):
+    """
+    Wistia Media Types, as documented in the link below:
+      https://wistia.com/support/developers/data-api#medias_response
+
+    """
+    VIDEO = 'Video'
+    AUDIO = 'Audio'
+    IMAGE = 'Image'
+    PDF = 'PdfDocument'
+    WORD = 'MicrosoftOfficeDocument'
+    SWF = 'Swf'
+    UNKNOWN = 'UnknownType'
+
+
+class SortBy(Enum):
+    """
+    The name of the field to sort by. Defaults to sorting by Project ID.
+      https://wistia.com/support/developers/data-api#sorting
+
+    """
+    NAME = 'name'
+    CREATED = 'created'
+    UPDATED = 'updated'
+
+
+class SortDir(Enum):
+    """
+    Specifies the direction of the sort, defaults to ASC (ascending) order.
+      https://wistia.com/support/developers/data-api#sorting
+
+    """
+    DESC = 0
+    ASC = 1
 
 
 class VideoStatus(Enum):
@@ -90,9 +129,10 @@ class VideoData:
         try:
             self.duration = kwargs.pop('duration')
         except KeyError as e:
-            # There are rare cases when 'duration' field is missing from response
-            # This usually also means video is inaccessible from the webpage, so
-            # we might need to contact Wistia Support to resolve the issue.
+            # There are rare cases when 'duration' field is missing from
+            # response. This usually also means video is inaccessible from the
+            # webpage, so we might need to contact Wistia Support to resolve
+            # the issue.
             self.status = VideoStatus.FAILED
             self.duration = 0.0
             LOG.exception(
@@ -111,9 +151,10 @@ class VideoData:
     @classmethod
     def load_video(cls, video_id: str) -> 'VideoData':
         """
-        Retrieve video data from Wistia and return a new :class:`VideoData` object
+        Retrieve video data from Wistia and return a new :class:`VideoData`
+        object.
         """
-        from ..data_api import WistiaDataApi
+        from .api_data import WistiaDataApi
         obj = cls(**WistiaDataApi.get_video(video_id))
         return obj
 
@@ -122,7 +163,7 @@ class VideoData:
         """
         List videos for a Wistia project.
         """
-        from ..data_api import WistiaDataApi
+        from .api_data import WistiaDataApi
         videos = []
         for v in WistiaDataApi.list_project(project_id):
             vd = VideoData(**v)
@@ -141,7 +182,8 @@ class VideoData:
     @property
     def ad_needed(self) -> bool:
         """
-        Indicates whether the Wistia video needs audio descriptions added on it.
+        Indicates whether the Wistia video needs audio descriptions added
+        on it.
         """
         if self.has_audio_description and not self.ad_disabled:
             return False
@@ -187,7 +229,8 @@ class VideoData:
         """
 
         # Check if ad is explicitly disabled
-        ad_disabled = customizations.get('audioDescriptionIsRequired', '').lower() == "false"
+        ad_disabled = customizations.get(
+            'audioDescriptionIsRequired', '').lower() == 'false'
         overlay_text = customizations.get('plugin', {}).get(
             'thumbnailTextOverlay-v2', {}).get('text') or ''
 
@@ -281,7 +324,7 @@ class VideoEmbedData:
         :class:`VideoEmbedData` object.
 
         """
-        from ..embed_api import WistiaEmbedApi
+        from .api_embed import WistiaEmbedApi
         obj = cls(**WistiaEmbedApi.get_data(video_id))
         return obj
 
@@ -315,5 +358,5 @@ class UploadResponse:
         try:
             self.created = datetime.fromisoformat(self.created)
             self.updated = datetime.fromisoformat(self.updated)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, AttributeError):
             pass

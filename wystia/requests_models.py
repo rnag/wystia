@@ -6,7 +6,7 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from ..config.requests import (
+from .requests_config import (
     DEFAULT_MAX_RETRIES, DEFAULT_BACKOFF_FACTOR, DEFAULT_STATUS_FORCE_LIST)
 
 
@@ -32,7 +32,8 @@ class SessionWithRetry(Session):
             read=0,
             total=num_retries,
             status_forcelist=status_force_list,
-            method_whitelist=["HEAD", "GET", "PUT", "POST", "DELETE", "OPTIONS", "TRACE"],
+            allowed_methods=["HEAD", "GET", "PUT", "POST", "DELETE",
+                             "OPTIONS", "TRACE"],
             backoff_factor=backoff_factor
         )
 

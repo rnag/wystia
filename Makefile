@@ -47,13 +47,14 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
 
-lint: ## check style with flake8
+lint: ## check style with flake8 and pylint
 	flake8 wystia tests
+	pylint wystia tests
 
-test: ## run tests quickly with the default Python
-	pytest
+test: ## run unit tests quickly with the default Python
+	pytest tests/unit
 
-test-all: ## run tests on every Python version with tox
+test-all: ## run unit tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python

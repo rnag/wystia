@@ -3,8 +3,9 @@ from typing import Dict, Any, Optional
 
 from requests import Session
 
-from .base_api import _BaseWistiaApi
-from .config.wistia import WistiaConfig
+from .api_base import _BaseWistiaApi
+from .config import WistiaConfig
+from .errors import NoSuchVideo
 
 
 # TODO maybe refactor into a custom type
@@ -37,11 +38,18 @@ class WistiaEmbedApi(_BaseWistiaApi):
         """
         r = cls.session().get(
             WistiaConfig.MEDIAS_EMBED_URL.format(media_id=video_id))
+        r.raise_for_status()
 
         end_json = '}'
         json_str = r.text.split('=', 1)[-1].rsplit(end_json, 1)[0] + end_json
 
-        return loads(json_str).get('media', {})
+        data = loads(json_str)
+        if 'error' in data:
+            # Wistia Embed response contains an error object like below:
+            #   {'error': True, 'iframe': True}
+            raise NoSuchVideo(video_id)
+
+        return data.get('media', {})
 
     @classmethod
     def asset_url(cls, video_id: Optional[str] = None,

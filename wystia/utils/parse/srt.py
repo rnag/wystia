@@ -30,8 +30,8 @@ def total_seconds(ts: str) -> str:
 def total_ms(ts: str) -> int:
     """
     Converts a timestamp containing hours, minutes, seconds, and milliseconds
-    (for example, in the "HH:mm:ss,SSS" format) to an integer value representing
-    the total milliseconds.
+    (for example, in the "HH:mm:ss,SSS" format) to an integer value
+    representing the total milliseconds.
 
     For example, a string like "1:20:32,5" will be returned as 4832005
 

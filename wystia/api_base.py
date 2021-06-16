@@ -8,7 +8,8 @@ from typing import Dict, Any, Optional, List, Union
 from requests import Session, RequestException
 
 from .constants import WISTIA_API_TOKEN
-from .models.requests import SessionWithRetry, prefix_url_session
+from .log import LOG
+from .requests_models import SessionWithRetry, prefix_url_session
 
 
 class _BaseApi(ABC):
@@ -85,10 +86,12 @@ class _BaseWistiaApi(_BaseApi):
     #   https://wistia.com/support/developers/data-api#rate
     _REQUEST_COUNT = 0
 
-    @classmethod
-    def configure(cls, api_token):
-        """Sets the API token used to authenticate requests to the Wistia API."""
-        cls._API_TOKEN = api_token
+    @staticmethod
+    def configure(api_token):
+        """
+        Sets the API token used to authenticate requests to the Wistia API.
+        """
+        _BaseWistiaApi._API_TOKEN = api_token
 
     @classmethod
     def request_count(cls):
@@ -97,11 +100,14 @@ class _BaseWistiaApi(_BaseApi):
 
     @classmethod
     def reset_request_count(cls):
-        """Reset (clear) the running count of API requests to the Wistia API."""
-        cls._REQUEST_COUNT = 0
+        """
+        Reset (clear) the running count of API requests to the Wistia API.
+        """
+        _BaseWistiaApi._REQUEST_COUNT = 0
 
     @classmethod
-    def session(cls, additional_status_force_list: Optional[List[int]] = None) -> Session:
+    def session(cls, additional_status_force_list: Optional[List[int]] = None
+                ) -> Session:
         """
         Return a new :class:`requests.Session` object.
 
@@ -113,35 +119,61 @@ class _BaseWistiaApi(_BaseApi):
         return cls._get_session(additional_status_force_list)
 
     @classmethod
-    def get_page(cls, url, data_key=None, max_per_page=_MAX_PER_PAGE, **kwargs):
+    def list_page(cls, url, data_key=None, per_page=_MAX_PER_PAGE, **kwargs):
         """
-        Makes an HTTP GET request to the Wistia API. If we get back
-        ``max_per_page`` results or more, this indicates there are more results
+        Makes an HTTP GET request to the Wistia API. If we get back exactly
+        ``max_per_page`` results, this indicates there are more results
         available, so we will pass the ``page`` parameter to retrieve all the
         results for an API request.
 
-        Used primarily for `list` methods in the Wistia API, as described below:
+        Used primarily for `list` methods in the Wistia API, as described
+        below:
           https://wistia.com/support/developers/data-api#paging_and_sorting_responses
 
         :raises HTTPError: Raised for any 4xx or 5xx errors.
-        :raises ConnectionError: Raised for any request timeouts or connection errors.
+        :raises ConnectionError: Raised for any request timeouts or connection
+          errors.
         """
         data = []
         page = 1
 
-        page_data = cls._request_page(url, **kwargs)
+        page_data = cls._request_page(url, per_page=per_page, **kwargs)
         if data_key:
             page_data = page_data[data_key]
         data.extend(page_data)
 
-        while len(page_data) >= max_per_page:
+        while len(page_data) == per_page:
             page += 1
-            page_data = cls._request_page(url, page, **kwargs)
+            page_data = cls._request_page(url, page, per_page, **kwargs)
             if data_key:
                 page_data = page_data[data_key]
             data.extend(page_data)
 
         return data
+
+    @classmethod
+    def handle_delete(cls, url) -> bool:
+        """
+        Makes an HTTP DELETE request to the Wistia API. If the response is a
+        200 (OK) status code, this indicates the DELETE request was a success;
+        otherwise, we log an error as it might be useful for debugging
+        purposes.
+
+        :param url: URL for the endpoint, without the base API prefix.
+        :return: A boolean indicating whether the request was a success.
+        """
+        r = cls.session().delete(url)
+
+        success = r.status_code == 200
+        if not success:
+            import inspect
+            caller_name: str = inspect.stack()[1][3]
+            api_name = caller_name.replace('_', ' ').title()
+
+            LOG.error('Wistia %s API. status=%d, reason=%r, text=%s',
+                      api_name, r.status_code, r.reason, r.text)
+
+        return success
 
     @classmethod
     def _increment_count_decorator(cls, func):
@@ -151,7 +183,7 @@ class _BaseWistiaApi(_BaseApi):
         """
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            cls._REQUEST_COUNT += 1
+            _BaseWistiaApi._REQUEST_COUNT += 1
             return func(*args, **kwargs)
 
         return wrapper
@@ -184,13 +216,16 @@ class _BaseWistiaApi(_BaseApi):
         return prefix_url_session(cls.API_ENDPOINT, session)
 
     @classmethod
-    def _request_page(cls, url, page=None, **kwargs) -> Dict[str, Any]:
+    def _request_page(
+            cls, url, page=None, per_page=None, **kwargs) -> Dict[str, Any]:
         """
         Requests a single page from the the Wistia API.
         """
         params = (kwargs.pop('params', None) or {}).copy()
         if page:
             params['page'] = page
+        if per_page:
+            params['per_page'] = per_page
 
         r = cls._get_session().request('GET', url, params=params, **kwargs)
         r.raise_for_status()

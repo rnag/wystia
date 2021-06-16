@@ -4,7 +4,13 @@ Wistia API Helper
 
 
 .. image:: https://img.shields.io/pypi/v/wystia.svg
-        :target: https://pypi.python.org/pypi/wystia
+        :target: https://pypi.org/project/wystia/
+
+.. image:: https://img.shields.io/pypi/l/wystia.svg
+        :target: https://pypi.org/project/wystia/
+
+.. image:: https://img.shields.io/pypi/pyversions/wystia.svg
+        :target: https://pypi.org/project/wystia
 
 .. image:: https://img.shields.io/travis/rnag/wystia.svg
         :target: https://travis-ci.com/rnag/wystia
@@ -31,28 +37,114 @@ A Python wrapper library for the Wistia API
 Usage
 -----
 
-Some example usage below; more complete docs upcoming.
-
+Sample usage with the `Data API <https://wistia.com/support/developers/data-api>`_:
 
 .. code-block:: python3
 
-    from wystia import WistiaDataApi, WistiaUploadApi, WistiaEmbedApi
-    from wystia.models import VideoData
+    from wystia import WistiaDataApi
+    from wystia.models import SortBy, LanguageCode, VideoData
 
-    # Assuming you haven't set this via the environment variable
-    for cls in WistiaDataApi, WistiaUploadApi:
-        cls.configure('MY-API-TOKEN')
-    # List videos in a project (allows up to 500 results per request)
-    videos = WistiaDataApi.list_project('my-project-id')
-    # List details on a Wistia video
-    video_dict = WistiaDataApi.get_video('my-video-id')
+    # Retrieve a list of all projects in the Wistia account,
+    # sorted A-Z and in ascending order.
+    projects = WistiaDataApi.list_all_projects(SortBy.NAME)
+    project_ids = [p['hashedId'] for p in projects]
+
+    # Retrieve a list of videos for a Wistia project.
+    # Note: If you don't require asset info (such as ADs) on each
+    #   video, I suggest calling `list_project` instead.
+    videos = WistiaDataApi.list_videos('project-id')
+
+    # Retrieve info on a particular video
+    video_dict = WistiaDataApi.get_video('video-id')
     vd = VideoData(**video_dict)
     print(vd)
+
+    # Update attributes on a media (video), or set a custom thumbnail on the video.
+    WistiaDataApi.update_video(
+        'video-id', thumbnail_media_id='uploaded-thumbnail-id')
+
+    # Get aggregated stats for a video, such as view count
+    stats = WistiaDataApi.get_stats_for_video('video-id')
+
+    # Retrieve the customization data for a video
+    customizations = WistiaDataApi.get_customizations('video-id')
+
+    # Update only specific customizations for a video
+    # Note the embed options are documented here:
+    #   https://wistia.com/support/developers/embed-options
+    WistiaDataApi.update_customizations('video-id',
+                                        {'playerColor': '#e7fad1',
+                                         # Hide comments on the media page
+                                         'private': {'show_comments': 'false'}})
+
+    # Get the Spanish captions on a video
+    WistiaDataApi.get_captions('video-id', LanguageCode.SPANISH)
+
+    # Add (or replace) the English captions on a video
+    WistiaDataApi.update_captions('video-id', LanguageCode.ENGLISH,
+                                  srt_file='path/to/file.srt')
+
+
+... or to upload media via the `Upload API <https://wistia.com/support/developers/upload-api>`_:
+
+.. code-block:: python3
+
+    import os
+    from wystia import WistiaUploadApi
+
     # Upload a file to a (default) project on Wistia
-    WistiaUploadApi.upload_file('path/to/path')
+    r = WistiaUploadApi.upload_file('path/to/my-file.mp4')
+    expected_name = os.path.basename('path/to/my-file.mp4')
+
+    assert r.created
+    assert r.name == expected_name
+
     # Uploads with a public link to a video, such as
     # an S3 pre-signed url.
-    WistiaUploadApi.upload_link('my-s3-link')
+    r = WistiaUploadApi.upload_link('my-s3-link',
+                                    title='My Video Name',
+                                    description='My Description')
+
+... you can alternatively retrieve asset info via the public Media Embed link:
+
+.. code-block:: python3
+
+    from wystia import WistiaEmbedApi
+
+    # Get the media embed data
+    embed_data = WistiaEmbedApi.get_data('video-id')
+
+    # Retrieve the source URL of the original media
+    source_url = WistiaEmbedApi.asset_url(media_data=embed_data)
+
+... When using the *Data API*, the ``WistiaHelper`` can help to simplify some calls:
+
+.. code-block:: python3
+
+    from wystia import WistiaHelper
+
+    # Check if the video exists in your Wistia account
+    if WistiaHelper.video_exists('abc1234567'):
+        print('My video exists!')
+
+    # Check if a video's name indicates the video is an archived copy of an
+    # existing video, as discussed in the below article on replacing a media:
+    #   https://wistia.com/learn/product-updates/improved-library-management-tools
+    if WistiaHelper.is_archived_video('My Title [Archived on August 13, 2015]'):
+        print('This video is archived!')
+
+    # Update the player color on a video
+    WistiaHelper.customize_video_on_wistia('video-id', 'ffffcc')
+
+    # Enable captions / AD in the player for a video
+    WistiaHelper.enable_ad('video-id')
+    WistiaHelper.enable_captions('video-id', on_by_default=False)
+
+    # Disable captions / AD in the player for a video
+    if WistiaHelper.has_captions_enabled('video-id'):
+        print('Disabling captions and AD for the video')
+        WistiaHelper.disable_captions_and_ad('video-id')
+
 
 Installing Wystia and Supported Versions
 ----------------------------------------
@@ -64,23 +156,44 @@ The Wystia (Wistia helper) library is available on PyPI:
 
 The ``wystia`` library officially supports **Python 3.7** or higher.
 
-About
------
+Getting Started
+---------------
 
-I recommend reading the documentation in the source code
-for important HOW-TO's and info on what each helper function is doing.
+Using the methods on the API classes assume your Wistia API token
+has previously been configured, for example via the environment. The API token will
+then be used globally by all the API classes when making requests to the Wistia API.
 
-I'll need to write some kind of documentation eventually, but that's still pending for now.
+You can set the following environment variable with your API token:
 
-At a minimum I recommend setting this environment variable:
+* ``WISTIA_API_TOKEN``
 
-* ``WISTIA_API_TOKEN`` - API Token to use for requests to the Wistia API
+Another option is to use the global ``configure`` method as shown below:
+
+.. code-block:: python3
+
+    WistiaDataApi.configure('MY-API-TOKEN')
 
 
-Features
+Data API
 --------
 
-* TODO
+The wrapper class ``WistiaDataApi`` interacts with the Wistia Data API (docs below):
+
+- https://wistia.com/support/developers/data-api
+
+
+It fully implements the following sections in the API documentation:
+
+    - Paging and Sorting Responses
+    - Projects
+    - Medias
+    - Customizations
+    - Captions
+
+The following sections in the API have *not* been implemented (mainly as I haven't used them before):
+
+    - Project Sharings
+    - Account
 
 Credits
 -------

@@ -10,18 +10,20 @@ Docs:
 """
 __all__ = ['WistiaDataApi',
            'WistiaEmbedApi',
-           'WistiaUploadApi']
+           'WistiaUploadApi',
+           'WistiaHelper']
 
 import logging
 
-from .data_api import WistiaDataApi
-from .embed_api import WistiaEmbedApi
-from .upload_api import WistiaUploadApi
+from .api_data import WistiaDataApi
+from .api_embed import WistiaEmbedApi
+from .api_upload import WistiaUploadApi
+from .api_helper import WistiaHelper
 
 
 __author__ = 'Ritvik Nag'
 __email__ = 'rv.kvetch@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 # Set up logging to ``/dev/null`` like a library is supposed to.
