@@ -179,16 +179,6 @@ class VideoData:
         """
         return self.caption_duration is not None
 
-    @property
-    def ad_needed(self) -> bool:
-        """
-        Indicates whether the Wistia video needs audio descriptions added
-        on it.
-        """
-        if self.has_audio_description and not self.ad_disabled:
-            return False
-        return True
-
     def set_project(self, project_id: str):
         """Set the `project_id` attribute on the object."""
         self.project_id = project_id

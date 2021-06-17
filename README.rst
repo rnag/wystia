@@ -89,15 +89,13 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
 
 .. code-block:: python3
 
-    import os
     from wystia import WistiaUploadApi
 
     # Upload a file to a (default) project on Wistia
     r = WistiaUploadApi.upload_file('path/to/my-file.mp4')
-    expected_name = os.path.basename('path/to/my-file.mp4')
-
-    assert r.created
-    assert r.name == expected_name
+    # Check if the video was successfully uploaded
+    # assert r.created
+    # assert r.name == 'my-file.mp4'
 
     # Uploads with a public link to a video, such as
     # an S3 pre-signed url.
@@ -117,26 +115,25 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
     # Retrieve the source URL of the original media
     source_url = WistiaEmbedApi.asset_url(media_data=embed_data)
 
-... When using the *Data API*, the ``WistiaHelper`` can help to simplify some calls:
+... when using the *Data API*, the ``WistiaHelper`` can help to further simplify some calls:
 
 .. code-block:: python3
 
     from wystia import WistiaHelper
 
     # Check if the video exists in your Wistia account
-    if WistiaHelper.video_exists('abc1234567'):
-        print('My video exists!')
+    assert WistiaHelper.video_exists('abc1234567')
 
     # Check if a video's name indicates the video is an archived copy of an
     # existing video, as discussed in the below article on replacing a media:
     #   https://wistia.com/learn/product-updates/improved-library-management-tools
-    if WistiaHelper.is_archived_video('My Title [Archived on August 13, 2015]'):
-        print('This video is archived!')
+    assert WistiaHelper.is_archived_video(
+        'My Title [Archived on August 13, 2015]')
 
     # Update the player color on a video
     WistiaHelper.customize_video_on_wistia('video-id', 'ffffcc')
 
-    # Enable captions / AD in the player for a video
+    # Individually enable captions / AD in the player for a video
     WistiaHelper.enable_ad('video-id')
     WistiaHelper.enable_captions('video-id', on_by_default=False)
 
@@ -155,6 +152,7 @@ The Wystia (Wistia helper) library is available on PyPI:
     $ python -m pip install wystia
 
 The ``wystia`` library officially supports **Python 3.7** or higher.
+
 
 Getting Started
 ---------------
@@ -194,6 +192,46 @@ The following sections in the API have *not* been implemented (mainly as I haven
 
     - Project Sharings
     - Account
+
+
+Tips
+~~~~
+
+If you need to retrieve info on videos in a project and you
+don't need complete info such as a list of assets for the video,
+I recommend using ``list_project`` instead of ``list_videos``. This is because
+the `Projects#show <https://wistia.com/support/developers/data-api#projects_show>`_
+API returns up to 500 results per request, whereas the ``Medias#list``
+only returns the default 100 results per page.
+
+Assuming a project in your Wistia account has a total of about 250 media, here is the number of API
+calls you might expect from each individual approach:
+
+.. code-block:: python3
+
+    from wystia import WistiaDataApi
+
+    videos = WistiaDataApi.list_videos('project-id')
+    assert WistiaDataApi.request_count() == 3
+
+    # Resets request count for the next call
+    WistiaDataApi.reset_request_count()
+
+    videos = WistiaDataApi.list_project('project-id')
+    assert WistiaDataApi.request_count() == 1
+
+
+Thread Safety
+-------------
+
+The Wistia API classes are completely thread safe, since ``requests.Session``
+objects are not re-used between API calls.
+
+This means that if you have two (un-related) API operations to perform,
+such as updating a video's title and adding captions on the video,
+then you can certainly run those calls in parallel so that
+they complete a bit faster.
+
 
 Credits
 -------

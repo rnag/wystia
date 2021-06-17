@@ -87,6 +87,23 @@ class WistiaHelper:
         return WistiaDataApi.update_customizations(video_id, data)
 
     @classmethod
+    def enable_captions_and_ad(cls, video_id, on_by_default=False):
+        """
+        Enable captions and AD on a Wistia video.
+        """
+        obd_value = str(on_by_default).lower()
+        data = {
+            "plugin": {
+                "captions-v1": {
+                    "language": "", "onByDefault": obd_value, "on": "true"
+                }
+            },
+            "audioDescriptionIsRequired": "true"
+        }
+
+        return WistiaDataApi.update_customizations(video_id, data)
+
+    @classmethod
     def disable_captions_and_ad(cls, video_id, on_by_default=False):
         """
         Disable captions and AD on a Wistia video.

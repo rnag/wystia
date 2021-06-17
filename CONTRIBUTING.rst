@@ -102,8 +102,8 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/rnag/wystia/pull_requests
+3. The pull request should work for Python 3.7, 3.8 and 3.9, and for PyPy. Check
+   https://travis-ci.com/github/rnag/wystia/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -111,7 +111,7 @@ Tips
 
 To run a subset of tests::
 
-$ pytest tests.test_wystia
+$ pytest tests/unit/test_wystia.py::test_request_count_is_shared
 
 
 Deploying

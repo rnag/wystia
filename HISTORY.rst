@@ -2,6 +2,14 @@
 History
 =======
 
+0.2.1 (2021-06-17)
+------------------
+
+* WistiaHelper: Add method ``enable_captions_and_ad``
+* Remove ``.format`` usage in log statements
+* Remove an unnecessary method ``ad_needed`` from ``VideoData``
+* Update readme and Sphinx ``docs/``
+
 0.2.0 (2021-06-16)
 ------------------
 
