@@ -12,7 +12,7 @@ Wistia API Helper
 .. image:: https://img.shields.io/pypi/pyversions/wystia.svg
         :target: https://pypi.org/project/wystia
 
-.. image:: https://img.shields.io/travis/rnag/wystia.svg
+.. image:: https://travis-ci.com/rnag/wystia.svg?branch=main
         :target: https://travis-ci.com/rnag/wystia
 
 .. image:: https://readthedocs.org/projects/wystia/badge/?version=latest
