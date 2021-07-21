@@ -5,7 +5,8 @@ python:
 - 3.7
 - 3.6
 - 3.5
-install: pip install -U tox-travis
+# Ref: https://travis-ci.community/t/pip-install-cryptography-fails-on-py36/11233/4
+install: pip install -U tox-travis virtualenv
 script: tox
 deploy:
   provider: pypi
