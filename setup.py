@@ -32,7 +32,7 @@ test_requirements = [
 
 setup(
     name='wystia',
-    version='0.2.1',
+    version='0.3.0',
     description='A Python wrapper library for the Wistia API',
     long_description=readme + '\n\n' + history,
     author='Ritvik Nag',
