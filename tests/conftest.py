@@ -1,12 +1,16 @@
 """
 Common test fixtures and utilities
 """
-from dataclasses import dataclass
+import sys
 from typing import Union, List
 
 import pytest
 
 from wystia.utils.parse import as_list
+
+
+# Check if system Python version is 3.6 or greater
+PY36 = sys.version_info[0:2] >= (3, 6)
 
 
 @pytest.fixture(scope='session')
@@ -33,18 +37,17 @@ def mock_file_name():
     return 'abc-1234567.mp4'
 
 
-@dataclass
 class TestsWithMarkSkipper:
     """
     Util to skip tests with mark, unless cli option provided.
     """
+    def __init__(self, test_marks: Union[str, List[str]],
+                 cli_option_name: str,
+                 cli_option_help: str):
 
-    test_marks: Union[str, List[str]]
-    cli_option_name: str
-    cli_option_help: str
-
-    def __post_init__(self):
-        self.test_marks = as_list(self.test_marks)
+        self.test_marks = as_list(test_marks)
+        self.cli_option_name = cli_option_name
+        self.cli_option_help = cli_option_help
 
     def pytest_addoption_hook(self, parser):
         parser.addoption(

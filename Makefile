@@ -26,6 +26,12 @@ BROWSER := python -c "$$BROWSER_PYSCRIPT"
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
+init: ## install all dev dependencies for this project
+	pip install -e .
+	@python -c 'import sys; exit(0) if sys.version_info[:2] > (3, 5) else exit(1)' \
+		&& pip install -r requirements-dev.txt \
+		|| pip install -r requirements-py35-dev.txt
+
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 clean-build: ## remove build artifacts
@@ -57,8 +63,8 @@ test: ## run unit tests quickly with the default Python
 test-all: ## run unit tests on every Python version with tox
 	tox
 
-coverage: ## check code coverage quickly with the default Python
-	coverage run --source wystia -m pytest
+coverage: ## check code coverage with unit tests quickly with the default Python
+	coverage run --source wystia -m pytest tests/unit
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html

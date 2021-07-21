@@ -40,10 +40,7 @@ class WistiaEmbedApi(_BaseWistiaApi):
             WistiaConfig.MEDIAS_EMBED_URL.format(media_id=video_id))
         r.raise_for_status()
 
-        end_json = '}'
-        json_str = r.text.split('=', 1)[-1].rsplit(end_json, 1)[0] + end_json
-
-        data = loads(json_str)
+        data = r.json()
         if 'error' in data:
             # Wistia Embed response contains an error object like below:
             #   {'error': True, 'iframe': True}

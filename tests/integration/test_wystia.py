@@ -26,6 +26,8 @@ def test_call_embed_api(real_video_id):
     ved = WistiaEmbedApi.get_data(real_video_id)
     assert_time(start, is_mock=False)
 
+    log.info('Video Embed object: %r', VideoEmbedData(**ved))
+
     start = time()
     num_assets = WistiaEmbedApi.num_assets(media_data=ved)
     # Assert that we don't make the same API call again
@@ -134,6 +136,13 @@ def test_get_video(real_video_id):
     r = WistiaDataApi.get_video(real_video_id)
     assert r
     assert r.get('name')
+
+    vd = VideoData(**r)
+    # If the video has captions, that won't be included in the `Medias#show`
+    # response by default, so we'll need a separate API call as below.
+    # vd.process_captions(
+    #     WistiaDataApi.list_captions(real_video_id))
+    log.info('Video Data object: %r', vd)
 
 
 def test_get_video_when_no_such_video(mock_video_id):
@@ -277,13 +286,13 @@ def test_update_captions(real_video_id, real_captions_path):
         [END TEST]
         """)
 
-    contents = f'{contents}\n{contents_to_append}'
+    contents = contents + '\n' + contents_to_append
 
     WistiaDataApi.update_captions(
         real_video_id, LanguageCode.SPANISH, contents)
 
     # Confirm that captions for the language code have been updated
-    caption_text: str = WistiaDataApi.get_captions(
+    caption_text = WistiaDataApi.get_captions(
         real_video_id, LanguageCode.SPANISH)['text']
 
     assert caption_text.endswith(contents_to_append)
@@ -345,3 +354,18 @@ def test_upload_link_to_wistia(real_presigned_url):
     assert r.name
     assert r.description
     assert r.hashed_id
+
+
+def test_project_details(real_project_id):
+    # Confirm we make a live API call to retrieve a list of *all* projects
+    assert WistiaDataApi.request_count() == 0
+    projects = WistiaDataApi.list_all_projects()
+    assert WistiaDataApi.request_count() >= 1
+
+    WistiaDataApi.reset_request_count()
+
+    r = WistiaHelper.project_details(real_project_id, projects)
+    # Assert no new API call is made
+    assert WistiaDataApi.request_count() == 0
+
+    log.info('Response: %s', dumps(r))
