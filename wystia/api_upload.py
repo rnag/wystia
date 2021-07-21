@@ -124,5 +124,5 @@ class WistiaUploadApi(_BaseWistiaApi):
             # Raise an error with the response details
             raise UploadFailed(r)
 
-        LOG.info(f'Upload successful, completed in %s', r.elapsed)
+        LOG.info('Upload successful, completed in %s', r.elapsed)
         return r.json()

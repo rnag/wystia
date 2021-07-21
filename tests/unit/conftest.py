@@ -2,12 +2,13 @@
 Common test fixtures and utilities, for unit tests
 """
 import pytest
+from pytest_mock import MockerFixture
 
 from wystia import WistiaDataApi
 
 
 @pytest.fixture
-def mock_log(mocker):
+def mock_log(mocker: MockerFixture):
     return mocker.patch('wystia.errors.LOG')
 
 
@@ -19,7 +20,7 @@ def global_setup():
 
 
 @pytest.fixture(autouse=True)
-def mock_request(mocker):
+def mock_request(mocker: MockerFixture):
     """
     Mock the underlying :meth:`request.Session.request` method
     so that any HTTP requests are mocked.
@@ -28,5 +29,5 @@ def mock_request(mocker):
 
 
 @pytest.fixture
-def mock_open(mocker):
+def mock_open(mocker: MockerFixture):
     mocker.patch('wystia.api_upload.open', return_value=b'')

@@ -1,8 +1,11 @@
 __all__ = ['as_bool',
            'as_int',
            'as_str',
-           'as_list']
+           'as_list',
+           'as_datetime']
 
+from datetime import datetime
+from numbers import Number
 from typing import Union, List, Any, Type
 
 
@@ -57,7 +60,7 @@ def as_str(o: Union[str, None], default='', raise_=True):
     other return `default` instead.
 
     """
-    return as_type(o, str, default, raise_)
+    return as_type(o, str, default, raise_) or default
 
 
 def as_list(o: Union[str, List[str]], sep=','):
@@ -74,3 +77,39 @@ def as_list(o: Union[str, List[str]], sep=','):
         return o
 
     return o.split(sep)
+
+
+def as_datetime(o: Union[str, Number, datetime], default=None, raise_=True):
+    """
+    Return `o` if already a :class:`datetime` object, otherwise convert the
+    object to a :class:`datetime` object using the below logic.
+
+        * ``str``: convert date strings (in ISO format) via the built-in
+          ``fromisoformat`` method.
+        * ``Number`` (int or float): Convert a numeric timestamp via the
+            built-in `fromtimestamp`` method.
+
+    If `o` is None or false-y, return `default` instead.
+
+    Otherwise, if we're unable to convert the value of `o` to a
+    :class:`datetime` as expected, raise an error if the `raise_` parameter
+    is true.
+
+    """
+    if not o:
+        return default
+
+    if isinstance(o, datetime):
+        return o
+
+    try:
+        if isinstance(o, Number):
+            # noinspection PyTypeChecker
+            return datetime.fromtimestamp(o)
+
+        return datetime.fromisoformat(o)
+
+    except (TypeError, ValueError):
+        if raise_:
+            raise
+        return default

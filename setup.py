@@ -20,7 +20,9 @@ packages = [
 requires = [
     'requests',
     'requests-toolbelt',
-    'urllib3'
+    'urllib3',
+    'dataclasses; python_version == "3.6"',
+    'backports-datetime-fromisoformat~=1.0.0; python_version < "3.7"'
 ]
 
 test_requirements = [
@@ -38,7 +40,7 @@ setup(
     url='https://github.com/rnag/wystia',
     packages=packages,
     include_package_data=True,
-    python_requires='>=3.7',
+    python_requires='>=3.5',
     install_requires=requires,
     license='MIT',
     keywords=['wistia', 'wistia api', 'wystia',
@@ -52,10 +54,11 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3 :: Only'
     ],
     test_suite='tests',

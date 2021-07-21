@@ -28,10 +28,16 @@ class WistiaError(Exception):
         super(WistiaError, self).__init__(self.message)
 
         if log_kwargs:
-            field_vals = [f'{k}={v}' for k, v in log_kwargs.items()]
-            message = f'{message.rstrip(".")}. {", ".join(field_vals)}'
+            # TODO replace below with f-strings once we drop support for
+            #  Python 3.5
+            field_vals = ['{}={}'.format(k, v)
+                          for k, v in log_kwargs.items()]
+            message = '{}. {}'.format(
+                message.rstrip("."), ", ".join(field_vals))
+            # field_vals = [f'{k}={v}' for k, v in log_kwargs.items()]
+            # message = f'{message.rstrip(".")}. {", ".join(field_vals)}'
 
-        LOG.error(f'{self.code}: {message}')
+        LOG.error('%s: %s', self.code, message)
 
     def response(self):
         """Formats an error object and returns an AWS Lambda Proxy response."""
