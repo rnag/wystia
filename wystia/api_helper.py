@@ -1,6 +1,8 @@
 """
 Utility functions for interacting with the Wistia API.
 """
+from typing import Dict, Any, Optional, List
+
 from requests import HTTPError
 
 from .api_data import WistiaDataApi
@@ -136,5 +138,27 @@ class WistiaHelper:
                       r.status_code, r.text)
             raise
 
-        LOG.info(f'[{r.elapsed}] Wistia: Customize Video success')
+        LOG.info('[%s] Wistia: Customize Video success', r.elapsed)
         return r.json()
+
+    @classmethod
+    def project_details(cls, project_id: str,
+                        projects: Optional[List[Dict]] = None
+                        ) -> Dict[str, Any]:
+        """
+        Retrieve details on a Wistia project. The optional parameter
+        `projects` contains info on all projects in the Wistia account, such
+        as a response from the `Projects:list` API.
+
+        """
+        if not projects:
+            projects = WistiaDataApi.list_all_projects()
+
+        for p in projects:
+            if p['hashedId'] == project_id:
+                project = p
+                break
+        else:
+            project = {}
+
+        return project

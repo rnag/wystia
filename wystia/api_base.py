@@ -17,11 +17,16 @@ class _BaseApi(ABC):
     Abstract base class for sending requests to an :attr:`API_ENDPOINT`
     """
 
+    # TODO replace below with variable annotation hints once we drop support
+    #  for Python 3.5
+
     # Base API endpoint
-    API_ENDPOINT: str = NotImplemented
+    API_ENDPOINT = NotImplemented
+    # API_ENDPOINT: str = NotImplemented
 
     # Requests Session object, can be used if session caching is needed
-    _SESSION: Optional[Session] = None
+    _SESSION = None
+    # _SESSION: Optional[Session] = None
 
     @classmethod
     def get(cls, api, **kwargs):
@@ -167,7 +172,12 @@ class _BaseWistiaApi(_BaseApi):
         success = r.status_code == 200
         if not success:
             import inspect
-            caller_name: str = inspect.stack()[1][3]
+
+            # TODO replace below with variable annotation hints once we drop
+            #  support for Python 3.5
+            caller_name = inspect.stack()[1][3]
+            # caller_name: str = inspect.stack()[1][3]
+
             api_name = caller_name.replace('_', ' ').title()
 
             LOG.error('Wistia %s API. status=%d, reason=%r, text=%s',
