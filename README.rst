@@ -57,6 +57,10 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
     # Retrieve info on a particular video
     video_dict = WistiaDataApi.get_video('video-id')
     vd = VideoData(**video_dict)
+    # If the video has captions, that won't be included in the `Medias#show`
+    # response by default, so we'll need a separate API call as below.
+    # vd.process_captions(
+    #     WistiaDataApi.list_captions(real_video_id))
     print(vd)
 
     # Update attributes on a media (video), or set a custom thumbnail on the video.
@@ -78,7 +82,7 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
                                          'private': {'show_comments': 'false'}})
 
     # Get the Spanish captions on a video
-    WistiaDataApi.get_captions('video-id', LanguageCode.SPANISH)
+    captions = WistiaDataApi.get_captions('video-id', LanguageCode.SPANISH)
 
     # Add (or replace) the English captions on a video
     WistiaDataApi.update_captions('video-id', LanguageCode.ENGLISH,
@@ -151,7 +155,7 @@ The Wystia (Wistia helper) library is available on PyPI:
 
     $ python -m pip install wystia
 
-The ``wystia`` library officially supports **Python 3.7** or higher.
+The ``wystia`` library officially supports **Python 3.5** or higher.
 
 
 Getting Started

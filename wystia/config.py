@@ -22,9 +22,10 @@ class WistiaConfig:
     ALL_CAPTIONS_URL = 'medias/{media_id}/captions.json'
     LANG_CAPTIONS_URL = 'medias/{media_id}/captions/{lang_code}.json'
 
-    MEDIAS_EMBED_URL = 'medias/{media_id}.jsonp'
+    MEDIAS_EMBED_URL = 'medias/{media_id}.json'
 
     @classmethod
     def wistia_url(cls, video_id, account_name=WISTIA_ACCOUNT):
         """Construct the wistia media Url given a video id"""
-        return f'https://{account_name}.wistia.com/medias/{video_id}'
+        return 'https://{account_name}.wistia.com/medias/{video_id}'.format(
+            account_name=account_name, video_id=video_id)
