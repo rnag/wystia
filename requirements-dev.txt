@@ -5,7 +5,7 @@ watchdog==2.1.6
 flake8==4.0.1
 pylint==2.11.1
 tox==3.24.4
-coverage==5.5
+coverage==6.1.1
 Sphinx==4.2.0
 twine==3.4.2
 # Test requirements
