@@ -95,7 +95,8 @@ class VideoStatus(Enum):
 
 class Container(list):
     """
-    List wrapper around a list of dataclass instances.
+    List wrapper around a list of :class:`JSONWizard` (or a sub-class)
+    instances.
     """
     __slots__ = ('_model', )
 
@@ -104,9 +105,11 @@ class Container(list):
         self._model = data_model
 
     def __str__(self):
+        """Control the value displayed when print(self) is called."""
         return pprint.pformat(self)
 
     def to_json(self, encoder: Encoder = json.dumps, **encoder_kwargs) -> str:
+        """Convert the list of instances to a JSON string."""
         # noinspection PyArgumentList
         return self._model.list_to_json(
             self,
@@ -115,6 +118,7 @@ class Container(list):
         )
 
     def to_pretty_json(self, encoder: Encoder = json.dumps) -> str:
+        """Convert the list of instances to a *prettified* JSON string."""
         return self.to_json(indent=2, encoder=encoder)
 
 
