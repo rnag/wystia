@@ -1,34 +1,28 @@
-#!/usr/bin/env python
-
 """The setup script."""
+import pathlib
 
 from setuptools import setup
 
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
+here = pathlib.Path(__file__).parent
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
+package_name = 'wystia'
 
 packages = [
-    'wystia',
-    'wystia.utils',
-    'wystia.utils.parse'
+    package_name,
+    f'{package_name}.utils',
+    f'{package_name}.utils.parse'
 ]
 
-requires = [
-    'requests',
-    'requests-toolbelt',
-    'urllib3',
-    'dataclasses; python_version == "3.6"',
-    'backports-datetime-fromisoformat~=1.0.0; python_version < "3.7"'
-]
+requires = (here / 'requirements.txt').read_text().splitlines()
 
 test_requirements = [
     'pytest>=6',
     'pytest-mock~=3.6.1'
 ]
+
+readme = (here / 'README.rst').read_text()
+history = (here / 'HISTORY.rst').read_text()
 
 setup(
     name='wystia',

@@ -24,9 +24,7 @@ def total_seconds(ts: str) -> str:
     """
     seconds, milliseconds = divmod(total_ms(ts), 1000)
 
-    # TODO replace with f-strings once we drop support for Python 3.5
-    return '{}.{:0>3}'.format(seconds, milliseconds)
-    # return f'{seconds}.{milliseconds:0>3}'
+    return f'{seconds}.{milliseconds:0>3}'
 
 
 def total_ms(ts: str) -> int:

@@ -1,5 +1,4 @@
 requests
 requests-toolbelt
 urllib3     # should already be installed via requests
-dataclasses; python_version == '3.6'
-backports-datetime-fromisoformat~=1.0.0; python_version < '3.7'
+dataclass-wizard>=0.18.0,<1.0

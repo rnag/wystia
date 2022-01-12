@@ -28,9 +28,7 @@ help:
 
 init: ## install all dev dependencies for this project
 	pip install -e .
-	@python -c 'import sys; exit(0) if sys.version_info[:2] > (3, 5) else exit(1)' \
-		&& pip install -r requirements-dev.txt \
-		|| pip install -r requirements-py35-dev.txt
+	pip install -r requirements-dev.txt
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 

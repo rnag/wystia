@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from functools import partial
-from typing import Optional, List
 
 import requests
 from requests import Session
@@ -18,7 +19,7 @@ class SessionWithRetry(Session):
     def __init__(self, auth=None,
                  num_retries=DEFAULT_MAX_RETRIES,
                  backoff_factor=DEFAULT_BACKOFF_FACTOR,
-                 additional_status_force_list: Optional[List[int]] = None):
+                 additional_status_force_list: list[int] | None = None):
 
         super().__init__()
         self.auth = auth

@@ -1,14 +1,18 @@
 """"
 Base API Classes
 """
+from __future__ import annotations
+
 import functools
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List, Union
+from typing import Any
 
+from dataclass_wizard.abstractions import W
 from requests import Session, RequestException
 
 from .constants import WISTIA_API_TOKEN
 from .log import LOG
+from .models import Container
 from .requests_models import SessionWithRetry, prefix_url_session
 
 
@@ -17,16 +21,11 @@ class _BaseApi(ABC):
     Abstract base class for sending requests to an :attr:`API_ENDPOINT`
     """
 
-    # TODO replace below with variable annotation hints once we drop support
-    #  for Python 3.5
-
     # Base API endpoint
-    API_ENDPOINT = NotImplemented
-    # API_ENDPOINT: str = NotImplemented
+    API_ENDPOINT: str = NotImplemented
 
     # Requests Session object, can be used if session caching is needed
-    _SESSION = None
-    # _SESSION: Optional[Session] = None
+    _SESSION: Session | None = None
 
     @classmethod
     def get(cls, api, **kwargs):
@@ -34,7 +33,7 @@ class _BaseApi(ABC):
         return cls.request('GET', api, **kwargs)
 
     @classmethod
-    def request(cls, method, api, **kwargs) -> Union[Dict, List]:
+    def request(cls, method, api, **kwargs) -> dict | list:
         """
         Makes an API request using an HTTP `method`.
 
@@ -75,11 +74,11 @@ class _BaseWistiaApi(_BaseApi):
 
     """
     # Default to the value specified via the environment
-    _API_TOKEN = WISTIA_API_TOKEN
+    _API_TOKEN: str = WISTIA_API_TOKEN
 
     # Maximum results per page; also documented in the link below
     #   https://wistia.com/support/developers/data-api#paging
-    _MAX_PER_PAGE = 100
+    _MAX_PER_PAGE: int = 100
 
     # This attribute keeps a running count of the total API requests made.
     #
@@ -89,10 +88,10 @@ class _BaseWistiaApi(_BaseApi):
     # when the request limit is reached. Don't forget to reset the running
     # total via `reset_request_count()`.
     #   https://wistia.com/support/developers/data-api#rate
-    _REQUEST_COUNT = 0
+    _REQUEST_COUNT: int = 0
 
     @staticmethod
-    def configure(api_token):
+    def configure(api_token: str):
         """
         Sets the API token used to authenticate requests to the Wistia API.
         """
@@ -111,8 +110,10 @@ class _BaseWistiaApi(_BaseApi):
         _BaseWistiaApi._REQUEST_COUNT = 0
 
     @classmethod
-    def session(cls, additional_status_force_list: Optional[List[int]] = None
-                ) -> Session:
+    def session(
+        cls,
+        additional_status_force_list: list[int] | None = None
+    ) -> Session:
         """
         Return a new :class:`requests.Session` object.
 
@@ -124,12 +125,23 @@ class _BaseWistiaApi(_BaseApi):
         return cls._get_session(additional_status_force_list)
 
     @classmethod
-    def list_page(cls, url, data_key=None, per_page=_MAX_PER_PAGE, **kwargs):
+    def list_page(
+        cls,
+        url: str,
+        data_model: type[W] = None,
+        data_key: str | None = None,
+        per_page: int = _MAX_PER_PAGE,
+        **kwargs
+    ) -> Container[W] | list[dict]:
         """
         Makes an HTTP GET request to the Wistia API. If we get back exactly
         ``max_per_page`` results, this indicates there are more results
         available, so we will pass the ``page`` parameter to retrieve all the
         results for an API request.
+
+        If `data_model` is passed as a valid `JSONWizard` sub-class, the JSON
+        response will be de-serialized into a :class:`Container` (a list) of
+        instances. Otherwise, we return a list of `dict` objects instead.
 
         Used primarily for `list` methods in the Wistia API, as described
         below:
@@ -154,10 +166,14 @@ class _BaseWistiaApi(_BaseApi):
                 page_data = page_data[data_key]
             data.extend(page_data)
 
+        if data_model:
+            instances: list[W] = data_model.from_list(data)
+            return Container(data_model, instances)
+
         return data
 
     @classmethod
-    def handle_delete(cls, url) -> bool:
+    def handle_delete(cls, url: str) -> bool:
         """
         Makes an HTTP DELETE request to the Wistia API. If the response is a
         200 (OK) status code, this indicates the DELETE request was a success;
@@ -173,11 +189,7 @@ class _BaseWistiaApi(_BaseApi):
         if not success:
             import inspect
 
-            # TODO replace below with variable annotation hints once we drop
-            #  support for Python 3.5
-            caller_name = inspect.stack()[1][3]
-            # caller_name: str = inspect.stack()[1][3]
-
+            caller_name: str = inspect.stack()[1][3]
             api_name = caller_name.replace('_', ' ').title()
 
             LOG.error('Wistia %s API. status=%d, reason=%r, text=%s',
@@ -227,7 +239,12 @@ class _BaseWistiaApi(_BaseApi):
 
     @classmethod
     def _request_page(
-            cls, url, page=None, per_page=None, **kwargs) -> Dict[str, Any]:
+            cls,
+            url: str,
+            page: int | None = None,
+            per_page: int | None = None,
+            **kwargs
+    ) -> dict[str, Any]:
         """
         Requests a single page from the the Wistia API.
         """

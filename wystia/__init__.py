@@ -8,7 +8,8 @@ Docs:
     - https://wistia.com/support/developers/embed-options
 
 """
-__all__ = ['WistiaDataApi',
+__all__ = ['WistiaApi',
+           'WistiaDataApi',
            'WistiaEmbedApi',
            'WistiaUploadApi',
            'WistiaHelper']
@@ -19,6 +20,10 @@ from .api_data import WistiaDataApi
 from .api_embed import WistiaEmbedApi
 from .api_upload import WistiaUploadApi
 from .api_helper import WistiaHelper
+
+
+# A handy alias in case it comes in useful to anyone :-)
+WistiaApi = WistiaDataApi
 
 
 __author__ = 'Ritvik Nag'

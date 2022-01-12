@@ -1,13 +1,15 @@
-__all__ = ['resolve_contents']
+from __future__ import annotations
 
-from typing import Optional
+__all__ = ['resolve_contents']
 
 from ...errors import ContentIsEmpty
 
 
-def resolve_contents(file_path: Optional[str] = None,
-                     contents: Optional[str] = None,
-                     raise_=True) -> str:
+def resolve_contents(
+    file_path: str | None = None,
+    contents: str | None = None,
+    raise_=True
+) -> str:
     """
     Resolves file contents, given two optional parameters.
 
