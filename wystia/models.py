@@ -23,6 +23,7 @@ from dataclass_wizard import JSONWizard, json_field
 from dataclass_wizard.abstractions import W
 from dataclass_wizard.type_def import Encoder
 
+from .constants import RAISE_ON_UNKNOWN_KEY
 from .log import LOG
 from .utils.decorators import cached_property
 from .utils.metaclasses import display_with_pformat
@@ -128,7 +129,7 @@ class Project(JSONWizard, metaclass=display_with_pformat):
     Project dataclass
     """
     class _(JSONWizard.Meta):
-        raise_on_unknown_json_key = True
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
 
     hashed_id: str
     id: int
@@ -150,7 +151,7 @@ class Media(JSONWizard, metaclass=display_with_pformat):
 
     """
     class _(JSONWizard.Meta):
-        raise_on_unknown_json_key = True
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
 
     hashed_id: str
     id: int
@@ -199,7 +200,7 @@ class Video(Media, JSONWizard, metaclass=display_with_pformat):
 
     """
     class _(JSONWizard.Meta):
-        raise_on_unknown_json_key = True
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
 
     duration: float = 0.0
     project: ProjectInfo = None
@@ -345,7 +346,7 @@ class VideoStats(JSONWizard, metaclass=display_with_pformat):
 
     """
     class _(JSONWizard.Meta):
-        raise_on_unknown_json_key = True
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
 
     id: int
     hashed_id: str
@@ -433,7 +434,7 @@ class UploadResponse(JSONWizard, metaclass=display_with_pformat):
       https://wistia.com/support/developers/upload-api#response-format
     """
     class _(JSONWizard.Meta):
-        raise_on_unknown_json_key = True
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
 
     hashed_id: str
     id: int
