@@ -497,7 +497,7 @@ class WistiaDataApi(_BaseWistiaApi):
     # --------------------------
 
     @classmethod
-    def get_customizations(cls, video_id: str) -> dict[str, Any]:
+    def get_customizations(cls, video_id: str) -> Customizations:
         """
         Get customizations for a video on Wistia, via the
         `Customizations#show` API:
@@ -513,7 +513,7 @@ class WistiaDataApi(_BaseWistiaApi):
         except HTTPError as e:
             raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
-        return r.json()
+        return Customizations.from_dict(r.json())
 
     @classmethod
     def create_customizations(cls, video_id: str,

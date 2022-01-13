@@ -10,6 +10,7 @@ __all__ = ['LanguageCode',
            'Media',
            'Video',
            'VideoStats',
+           'Customizations',
            'VideoEmbedData',
            'UploadResponse']
 
@@ -407,6 +408,289 @@ class Stats(metaclass=display_with_pformat):
     average_percent_watched: int
 
 
+############################
+#   Video Customizations   #
+############################
+
+@dataclass
+class Customizations(JSONWizard, metaclass=display_with_pformat):
+    """
+    Model class which represents customization data for a Wistia video - also
+    known as "Embed Options" in the Wistia docs.
+
+    Ref: https://wistia.com/support/developers/embed-options
+    """
+    class _(JSONWizard.Meta):
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
+        skip_defaults = True
+
+    player_color: str = ''
+    still_url: str | None = None
+    unaltered_still_image_asset: UnalteredStillImageAsset | None = None
+    thumbnail_alt_text: str | None = None
+    auto_play: bool | None = None
+    silent_auto_play: bool | None = None
+    end_video_behavior: str | None = None
+    controls_visible_on_load: bool = True
+    play_button: bool | None = None
+    bpb_time: bool | None = None
+    small_play_button: bool | None = None
+    # noinspection SpellCheckingInspection
+    play_bar: bool | None = json_field('playbar', all=True, default=None)
+    volume_control: bool | None = None
+    settings_control: bool | None = None
+    playback_rate_control: bool | None = None
+    quality_control: bool | None = None
+    fullscreen_button: bool | None = None
+    plugin: Plugin | None = None
+    private: Private | None = None
+    encrypted: Encrypted | None = None
+    audio_description_is_required: bool | None = None
+    # noinspection SpellCheckingInspection
+    plays_inline: bool | None = json_field('playsinline', all=True, default=None)
+    branding: bool | None = None
+    show_customer_logo: bool | None = None
+    customer_logo_image_url: str = ''
+    customer_logo_target_url: str = ''
+    chapters_on: bool | None = None
+    spherical: bool | None = None
+    vulcan: bool | None = None
+    video_quality: str = ''
+
+
+@dataclass
+class UnalteredStillImageAsset:
+    """
+    UnalteredStillImageAsset dataclass
+
+    """
+    url: str
+    width: int | None = None
+    height: int | None = None
+
+
+@dataclass
+class CaptionsV1:
+    """
+    CaptionsV1 dataclass
+
+    """
+    on: bool | None = None
+    on_by_default: bool | None = None
+    is_async: bool | None = json_field('async', all=True, default=None)
+    language: str = ''
+
+
+@dataclass
+class Plugin:
+    """
+    Plugin dataclass
+
+    """
+    thumbnail_text_overlay_v2: ThumbnailTextOverlayV2 | None = json_field(
+        'thumbnailTextOverlay-v2', all=True, default=None)
+    # Possibly deprecated in favor of V2; best to avoid using it directly.
+    thumbnail_text_overlay: ThumbnailTextOverlay | None = None
+    video_thumbnail: VideoThumbnail | None = None
+    midroll_link_v1: MidrollLinkV1 | None = None
+    post_roll_v1: PostRollV1 | None = None
+    captions_v1: CaptionsV1 = json_field('captions-v1', all=True, default_factory=CaptionsV1)
+    chapters: Chapters | None = None
+    eventbrite: Eventbrite | None = None
+    share: Share | None = None
+    require_email_v1: RequireEmailV1 | None = None
+    password_protected_video: PasswordProtectedVideo | None = None
+
+
+@dataclass
+class ThumbnailTextOverlayV2:
+    """
+    ThumbnailTextOverlayV2 dataclass
+
+    """
+    on: bool | None = None
+    text: str = ''
+    include_text_overlay: bool | None = None
+    text_overlay_image_url: str | None = None
+    is_async: bool | None = json_field('async', all=True, default=None)
+
+
+@dataclass
+class ThumbnailTextOverlay:
+    """
+    ThumbnailTextOverlay dataclass
+
+    """
+    on: bool | None = None
+    text: str = ''
+    include_text_overlay: bool | None = None
+    chapters: Chapters | None = None
+    captions_v1: CaptionsV1 | None = None
+    is_async: bool | None = json_field('async', all=True, default=None)
+
+
+@dataclass
+class VideoThumbnail:
+    """
+    Data dataclass
+
+    """
+    on: bool
+    hashed_id: str
+    trim_start: int
+    trim_end: int
+    is_async: bool | None = json_field('async', all=True, default=None)
+
+
+@dataclass
+class MidrollLinkV1:
+    """
+    MidrollLinkV1 dataclass
+
+    """
+    on: bool | None = None
+    links: list[Link] | None = None
+
+
+@dataclass
+class Link:
+    """
+    Link dataclass
+
+    """
+    name: str
+    time: int
+    duration: int
+    text: str
+    url: str
+    conversion_opportunity_id: int | None = None
+    conversion_opportunity_key: str | None = None
+
+
+@dataclass
+class PostRollV1:
+    """
+    PostRollV1 dataclass
+
+    """
+    on: bool | None = None
+    rewatch: bool | None = None
+    text: str | None = None
+    link: str | None = None
+    time: str | None = None
+    auto_size: bool | None = None
+    cta_type: str | None = None
+    style: Style | None = None
+
+
+@dataclass
+class Style:
+    """
+    Style dataclass
+
+    """
+    background_color: str
+
+
+@dataclass
+class Chapters:
+    """
+    Chapters dataclass
+
+    """
+    on: bool | None = None
+    visible_on_load: bool | None = None
+    chapter_list: list[ChapterList] | None = None
+
+
+@dataclass
+class ChapterList:
+    """
+    ChapterList dataclass
+
+    """
+    id: int
+    title: str
+    time: float
+    deleted: bool
+
+
+@dataclass
+class Eventbrite:
+    """
+    Eventbrite dataclass
+
+    """
+    on: bool | None = None
+    event_id: str = ''
+    text: str = ''
+    time: int | None = None
+    duration: int | None = None
+    type: str | None = None
+
+
+@dataclass
+class Share:
+    """
+    Share dataclass
+
+    """
+    on: bool | None = None
+    channels: str | None = None
+    page_title: str | None = None
+    page_url: str | None = None
+    tweet_text: str | None = None
+    override_url: bool | None = None
+    conversion_opportunity_key: str | None = None
+    download_type: str | None = None
+
+
+@dataclass
+class RequireEmailV1:
+    """
+    RequireEmailV1 dataclass
+
+    """
+    on: bool | None = None
+    top_text: str | None = None
+    bottom_text: str | None = None
+    time: str | None = None
+    ask_name: bool | None = None
+    allow_skip: bool | None = None
+    persistent_turnstile: bool | None = None
+    conversion_opportunity_key: str | None = None
+    is_async: bool | None = json_field('async', all=True, default=None)
+
+
+@dataclass
+class PasswordProtectedVideo:
+    """
+    PasswordProtectedVideo dataclass
+
+    """
+    on: bool | None = None
+    challenge: str | None = None
+
+
+@dataclass
+class Private:
+    """
+    Private dataclass
+
+    """
+    show_comments: bool | None = None
+    password_protect_on: bool | None = None
+
+
+@dataclass
+class Encrypted:
+    """
+    Encrypted dataclass
+
+    """
+    password_protect_password: str = ''
+
+
 ###########################
 #   Upload API - Models   #
 ###########################
@@ -479,7 +763,7 @@ class VideoEmbedData(JSONWizard, metaclass=display_with_pformat):
     integrations: dict
     # integrations: Integrations
     hls_enabled: bool
-    embed_options: EmbedOptions
+    embed_options: Customizations
     captions: list[Caption] = field(default_factory=list)
     transcript: Transcript | None = None
 
@@ -618,136 +902,3 @@ class Caption:
     """
     language: str
     text: str
-
-
-@dataclass
-class EmbedOptions:
-    """
-    EmbedOptions dataclass
-
-    """
-    volume_control: bool
-    fullscreen_button: bool
-    controls_visible_on_load: bool
-    player_color: str
-    bpb_time: bool
-    plugin: Plugin
-    vulcan: bool
-    playsinline: bool
-    video_quality: str = ''
-    audio_description_is_required: bool = False
-    branding: bool | None = None
-    chapters_on: bool | None = None
-    show_customer_logo: bool | None = None
-    auto_play: bool | None = None
-    silent_auto_play: bool | None = None
-    play_button: bool | None = None
-    small_play_button: bool | None = None
-    playbar: bool | None = None
-    settings_control: bool | None = None
-    playback_rate_control: bool | None = None
-    quality_control: bool | None = None
-    end_video_behavior: str | None = None
-    thumbnail_alt_text: str | None = None
-    unaltered_still_image_asset: UnalteredStillImageAsset | None = None
-    still_url: str | None = None
-    spherical: bool | None = None
-
-
-@dataclass
-class CaptionsV1:
-    """
-    CaptionsV1 dataclass
-
-    """
-    on_by_default: bool = False
-    is_async: bool = json_field('async', default=False)
-    language: str = ''
-    on: bool | None = None
-
-
-@dataclass
-class Plugin:
-    """
-    Plugin dataclass
-
-    """
-    captions_v1: CaptionsV1 = field(default_factory=CaptionsV1)
-    midroll_link_v1: MidrollLinkV1 | None = None
-    chapters: Chapters | None = None
-    share: Share | None = None
-
-
-@dataclass
-class MidrollLinkV1:
-    """
-    MidrollLinkV1 dataclass
-
-    """
-    links: list[Link]
-    on: bool
-
-
-@dataclass
-class Link:
-    """
-    Link dataclass
-
-    """
-    name: str
-    time: int
-    duration: int
-    text: str
-    url: str
-    conversion_opportunity_id: int
-    conversion_opportunity_key: str
-
-
-@dataclass
-class Chapters:
-    """
-    Chapters dataclass
-
-    """
-    visible_on_load: bool
-    chapter_list: list[ChapterList]
-    on: bool
-
-
-@dataclass
-class ChapterList:
-    """
-    ChapterList dataclass
-
-    """
-    id: int
-    title: str
-    time: float
-    deleted: bool
-
-
-@dataclass
-class Share:
-    """
-    Share dataclass
-
-    """
-    channels: str
-    page_title: str
-    page_url: str
-    tweet_text: str
-    override_url: bool
-    on: bool
-    conversion_opportunity_key: str
-    download_type: str | None = None
-
-
-@dataclass
-class UnalteredStillImageAsset:
-    """
-    UnalteredStillImageAsset dataclass
-
-    """
-    url: str
-    width: int | None = None
-    height: int | None = None
