@@ -1,15 +1,11 @@
-from json import loads
-from typing import Dict, Any, Optional
+from __future__ import annotations
 
 from requests import Session
 
 from .api_base import _BaseWistiaApi
 from .config import WistiaConfig
 from .errors import NoSuchVideo
-
-
-# TODO maybe refactor into a custom type
-EmbedDataType = Dict[str, Any]
+from .models import VideoEmbedData
 
 
 class WistiaEmbedApi(_BaseWistiaApi):
@@ -30,7 +26,7 @@ class WistiaEmbedApi(_BaseWistiaApi):
         return cls._create_session(additional_status_force_list)
 
     @classmethod
-    def get_data(cls, video_id: str) -> EmbedDataType:
+    def get_data(cls, video_id: str) -> VideoEmbedData:
         """
         Get media embed data for a Wistia video using the endpoint to the
         `.jsonp` file
@@ -46,12 +42,12 @@ class WistiaEmbedApi(_BaseWistiaApi):
             #   {'error': True, 'iframe': True}
             raise NoSuchVideo(video_id)
 
-        return data.get('media', {})
+        return VideoEmbedData.from_dict(data.get('media', {}))
 
     @classmethod
-    def asset_url(cls, video_id: Optional[str] = None,
-                  media_data: Optional[EmbedDataType] = None,
-                  asset_type='original') -> Optional[str]:
+    def asset_url(cls, video_id: str | None = None,
+                  media_data: VideoEmbedData | None = None,
+                  asset_type='original') -> str | None:
         """
         Get the media asset url stored on Wistia, by default for the
         "original" video.
@@ -66,16 +62,16 @@ class WistiaEmbedApi(_BaseWistiaApi):
             media_data = cls.get_data(video_id)
 
         mp4_url = None
-        for asset in media_data['assets']:
-            if asset['type'] == asset_type:
-                url = asset['url']
+        for asset in media_data.assets:
+            if asset.type == asset_type:
+                url = asset.url
                 mp4_url = url.replace('.bin', '/file.mp4', 1)
 
         return mp4_url
 
     @classmethod
-    def num_assets(cls, video_id: Optional[str] = None,
-                   media_data: Optional[EmbedDataType] = None,
+    def num_assets(cls, video_id: str | None = None,
+                   media_data: VideoEmbedData | None = None,
                    asset_type='mp4_alternate_audio') -> int:
         """
         Return the total number of assets (by default, AD files) associated
@@ -86,8 +82,8 @@ class WistiaEmbedApi(_BaseWistiaApi):
             media_data = cls.get_data(video_id)
 
         asset_count = 0
-        for asset in media_data['assets']:
-            if asset.get('type') == asset_type:
+        for asset in media_data.assets:
+            if asset.type == asset_type:
                 asset_count += 1
 
         return asset_count

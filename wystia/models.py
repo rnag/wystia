@@ -18,6 +18,7 @@ import pprint
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from typing import Generic, Iterator, Iterable, Any
 
 from dataclass_wizard import JSONWizard, json_field
 from dataclass_wizard.abstractions import W
@@ -94,16 +95,19 @@ class VideoStatus(Enum):
     NOT_FOUND = 'not_found'
 
 
-class Container(list):
+class Container(list, Generic[W]):
     """
     List wrapper around a list of :class:`JSONWizard` (or a sub-class)
     instances.
     """
     __slots__ = ('_model', )
 
-    def __init__(self, data_model: type[W], seq=()):
+    def __init__(self, data_model: type[W], seq: Iterable[W] = ()):
         super().__init__(seq)
         self._model = data_model
+
+    def __iter__(self) -> Iterator[W]:
+        return super().__iter__()
 
     def __str__(self):
         """Control the value displayed when print(self) is called."""
@@ -122,6 +126,10 @@ class Container(list):
         """Convert the list of instances to a *prettified* JSON string."""
         return self.to_json(indent=2, encoder=encoder)
 
+
+#########################
+#   Data API - Models   #
+#########################
 
 @dataclass
 class Project(JSONWizard, metaclass=display_with_pformat):
@@ -156,10 +164,10 @@ class Media(JSONWizard, metaclass=display_with_pformat):
     hashed_id: str
     id: int
     name: str
+    description: str
     type: MediaType
     created: datetime
     updated: datetime
-    description: str
     progress: float
     thumbnail: Thumbnail
     section: str | None = None
@@ -367,63 +375,9 @@ class Stats(metaclass=display_with_pformat):
     average_percent_watched: int
 
 
-@dataclass(init=False)
-class VideoEmbedData:
-
-    hashed_id: str
-    name: str
-    created: datetime
-    duration: float
-    # status: VideoStatus
-    captions_enabled: bool
-    ad_enabled: bool
-
-    # Not included in GET '/v1/medias' response, but technically
-    # still part of video metadata.
-    source_url: str = ''
-    ad_url: str | None = None
-    has_audio_description: bool = False
-    num_captions: int = 0
-
-    def __init__(self, **kwargs):
-        """
-        Parses a response from `WistiaEmbedApi.get_data`
-        """
-        if kwargs.pop('type') != 'Video':
-            return
-
-        self.hashed_id = kwargs['hashedId']
-        self.name = kwargs['name']
-        self.created = datetime.fromtimestamp(kwargs['createdAt'])
-        self.duration = kwargs['duration']
-
-        customizations = kwargs.get('embed_options') or {}
-        self.captions_enabled = (customizations
-                                 .get('plugin', {})
-                                 .get('captions-v1', {}).get('on') == 'true')
-        self.ad_enabled = (customizations
-                           .get('audioDescriptionIsRequired', '') != 'false')
-        self.num_captions = len(kwargs.get('captions', []))
-
-        assets = kwargs.get('assets') or []
-        for asset in assets:
-            if asset['type'] == 'original':
-                self.source_url = asset['url'].replace('.bin', '/file.mp4', 1)
-            if asset['type'] == 'alternate_audio':
-                self.has_audio_description = True
-                self.ad_url = asset['url'].replace('.bin', '/file.mp3', 1)
-
-    @classmethod
-    def load_video(cls, video_id: str) -> 'VideoEmbedData':
-        """
-        Retrieve video embed data from Wistia and return a new
-        :class:`VideoEmbedData` object.
-
-        """
-        from .api_embed import WistiaEmbedApi
-        obj = cls(**WistiaEmbedApi.get_data(video_id))
-        return obj
-
+###########################
+#   Upload API - Models   #
+###########################
 
 @dataclass
 class UploadResponse(JSONWizard, metaclass=display_with_pformat):
@@ -447,3 +401,321 @@ class UploadResponse(JSONWizard, metaclass=display_with_pformat):
     thumbnail: Thumbnail
     duration: float | None = None
     status: VideoStatus = VideoStatus.QUEUED
+
+
+############################
+#   Media Embed - Models   #
+############################
+
+@dataclass
+class VideoEmbedData(JSONWizard, metaclass=display_with_pformat):
+    """
+    VideoEmbedData dataclass
+
+    """
+    class _(JSONWizard.Meta):
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
+        skip_defaults = True
+
+    hashed_id: str
+    name: str
+    created_at: datetime
+    duration: float
+    assets: list[EmbedAsset]
+    project_id: int
+    stats: EmbedStats
+    distillery_url: str
+    account_key: str
+    media_key: str
+    type: str
+    media_type: str
+    progress: float
+    status: int
+    branding: bool
+    enable_customer_logo: bool
+    seo_description: str
+    preload_preference: Any
+    flash_player_url: str
+    show_about: bool
+    first_embed_for_account: bool
+    first_share_for_account: bool
+    keyframe_align: bool
+    use_media_data_host_logic: bool
+    tracking_transmit_interval: int
+    # Annotating this field as a generic `dict` type for now, because
+    # I've not seen this feature used before.
+    integrations: dict
+    # integrations: Integrations
+    hls_enabled: bool
+    embed_options: EmbedOptions
+    captions: list[Caption] = field(default_factory=list)
+    transcript: Transcript | None = None
+
+    # Not included in GET '/v1/medias' response, but technically
+    # still part of video metadata.
+    source_url: str = ''
+    ad_url: str | None = None
+    has_audio_description: bool = False
+
+    def __post_init__(self):
+        for asset in self.assets:
+            if asset.type == 'original':
+                self.source_url = asset.url.replace('.bin', '/file.mp4', 1)
+            if asset.type == 'alternate_audio':
+                self.has_audio_description = True
+                self.ad_url = asset.url.replace('.bin', '/file.mp3', 1)
+
+    @cached_property
+    def captions_enabled(self) -> bool:
+        return self.embed_options.plugin.captions_v1.on is True
+
+    @cached_property
+    def ad_enabled(self) -> bool:
+        return self.embed_options.audio_description_is_required
+
+    @cached_property
+    def num_captions(self) -> int:
+        return len(self.captions)
+
+    @classmethod
+    def load_video(cls, video_id: str) -> VideoEmbedData:
+        """
+        Retrieve video embed data from Wistia and return a new
+        :class:`VideoEmbedData` object.
+
+        """
+        from .api_embed import WistiaEmbedApi
+
+        return WistiaEmbedApi.get_data(video_id)
+
+
+@dataclass
+class Transcript:
+    video_id: str
+
+
+@dataclass
+class Details:
+    """
+    Details dataclass
+
+    """
+    audio_description: bool | None = None
+    language_metadata: LanguageMetadata | None = None
+
+
+@dataclass
+class EmbedAsset:
+    """
+    EmbedAsset dataclass
+
+    """
+    type: str
+    slug: str
+    display_name: str
+    bitrate: int
+    public: bool
+    status: int
+    progress: float
+    url: str
+    created_at: datetime
+    details: Details = field(default_factory=Details)
+    size: int | None = None
+    ext: str = ''
+    metadata: Metadata | None = None
+    container: str | None = None
+    codec: str | None = None
+    segment_duration: int | None = None
+    opt_vbitrate: int | None = None
+    width: int | None = None
+    height: int | None = None
+
+
+@dataclass
+class LanguageMetadata:
+    name: str
+    native_name: str
+    right_to_left: bool
+
+
+@dataclass
+class Metadata:
+    """
+    Metadata dataclass
+
+    """
+    aspect_ratio: float | None = None
+    av_stream_metadata: str | None = None
+    average_bitrate: int | None = None
+    early_max_bitrate: int | None = None
+    frame_width: int | None = None
+    frame_height: int | None = None
+    frame_count: int | None = None
+    max_bitrate: int | None = None
+    served_by_media_api: int | None = None
+
+
+@dataclass
+class EmbedStats:
+    """
+    Stats dataclass
+
+    """
+    load_count: int
+    play_count: int
+    unique_load_count: int
+    unique_play_count: int
+    average_engagement: float
+
+
+@dataclass
+class Integrations:
+    """
+    Integrations dataclass
+
+    TODO we don't use this feature, so no idea what goes here
+    """
+    pass
+
+
+@dataclass
+class Caption:
+    """
+    Caption dataclass
+
+    """
+    language: str
+    text: str
+
+
+@dataclass
+class EmbedOptions:
+    """
+    EmbedOptions dataclass
+
+    """
+    volume_control: bool
+    fullscreen_button: bool
+    controls_visible_on_load: bool
+    player_color: str
+    bpb_time: bool
+    plugin: Plugin
+    vulcan: bool
+    playsinline: bool
+    video_quality: str = ''
+    audio_description_is_required: bool = False
+    branding: bool | None = None
+    chapters_on: bool | None = None
+    show_customer_logo: bool | None = None
+    auto_play: bool | None = None
+    silent_auto_play: bool | None = None
+    play_button: bool | None = None
+    small_play_button: bool | None = None
+    playbar: bool | None = None
+    settings_control: bool | None = None
+    playback_rate_control: bool | None = None
+    quality_control: bool | None = None
+    end_video_behavior: str | None = None
+    thumbnail_alt_text: str | None = None
+    unaltered_still_image_asset: UnalteredStillImageAsset | None = None
+    still_url: str | None = None
+    spherical: bool | None = None
+
+
+@dataclass
+class CaptionsV1:
+    """
+    CaptionsV1 dataclass
+
+    """
+    on_by_default: bool = False
+    is_async: bool = json_field('async', default=False)
+    language: str = ''
+    on: bool | None = None
+
+
+@dataclass
+class Plugin:
+    """
+    Plugin dataclass
+
+    """
+    captions_v1: CaptionsV1 = field(default_factory=CaptionsV1)
+    midroll_link_v1: MidrollLinkV1 | None = None
+    chapters: Chapters | None = None
+    share: Share | None = None
+
+
+@dataclass
+class MidrollLinkV1:
+    """
+    MidrollLinkV1 dataclass
+
+    """
+    links: list[Link]
+    on: bool
+
+
+@dataclass
+class Link:
+    """
+    Link dataclass
+
+    """
+    name: str
+    time: int
+    duration: int
+    text: str
+    url: str
+    conversion_opportunity_id: int
+    conversion_opportunity_key: str
+
+
+@dataclass
+class Chapters:
+    """
+    Chapters dataclass
+
+    """
+    visible_on_load: bool
+    chapter_list: list[ChapterList]
+    on: bool
+
+
+@dataclass
+class ChapterList:
+    """
+    ChapterList dataclass
+
+    """
+    id: int
+    title: str
+    time: float
+    deleted: bool
+
+
+@dataclass
+class Share:
+    """
+    Share dataclass
+
+    """
+    channels: str
+    page_title: str
+    page_url: str
+    tweet_text: str
+    override_url: bool
+    on: bool
+    conversion_opportunity_key: str
+    download_type: str | None = None
+
+
+@dataclass
+class UnalteredStillImageAsset:
+    """
+    UnalteredStillImageAsset dataclass
+
+    """
+    url: str
+    width: int | None = None
+    height: int | None = None

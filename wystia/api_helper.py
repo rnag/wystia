@@ -1,13 +1,15 @@
 """
 Utility functions for interacting with the Wistia API.
 """
-from typing import Dict, Any, Optional, List
+from __future__ import annotations
 
 from requests import HTTPError
 
 from .api_data import WistiaDataApi
 from .config import WistiaConfig
+from .errors import NoSuchProject
 from .log import LOG
+from .models import Project, Container
 
 
 class WistiaHelper:
@@ -19,7 +21,7 @@ class WistiaHelper:
     """
 
     @staticmethod
-    def is_archived_video(video_name: str):
+    def is_archived_video(video_name: str) -> bool:
         """
         Check if this is an archived video which is automatically created by
         Wistia.
@@ -32,7 +34,7 @@ class WistiaHelper:
         return '[Archived' in video_name and video_name[-1] == ']'
 
     @classmethod
-    def video_exists(cls, video_id):
+    def video_exists(cls, video_id: str) -> bool:
         """
         Check if a video exists on Wistia.
         """
@@ -43,7 +45,11 @@ class WistiaHelper:
         return not (status == 404)
 
     @classmethod
-    def update_video_name(cls, video_id: str, video_title: str):
+    def update_video_name(
+        cls,
+        video_id: str,
+        video_title: str
+    ):
         """Update the title for a Wistia video."""
         return WistiaDataApi.update_video(video_id, video_title)
 
@@ -62,7 +68,11 @@ class WistiaHelper:
                 .get('on', 'false')).upper() == 'TRUE'
 
     @classmethod
-    def enable_captions(cls, video_id, on_by_default=False):
+    def enable_captions(
+        cls,
+        video_id: str,
+        on_by_default: bool = False
+    ):
         """
         Enable captions on a Wistia video.
         """
@@ -78,7 +88,7 @@ class WistiaHelper:
         return WistiaDataApi.update_customizations(video_id, data)
 
     @classmethod
-    def enable_ad(cls, video_id):
+    def enable_ad(cls, video_id: str):
         """
         Enable audio descriptions on a Wistia video.
         """
@@ -89,7 +99,11 @@ class WistiaHelper:
         return WistiaDataApi.update_customizations(video_id, data)
 
     @classmethod
-    def enable_captions_and_ad(cls, video_id, on_by_default=False):
+    def enable_captions_and_ad(
+        cls,
+        video_id: str,
+        on_by_default: bool = False
+    ):
         """
         Enable captions and AD on a Wistia video.
         """
@@ -106,7 +120,11 @@ class WistiaHelper:
         return WistiaDataApi.update_customizations(video_id, data)
 
     @classmethod
-    def disable_captions_and_ad(cls, video_id, on_by_default=False):
+    def disable_captions_and_ad(
+        cls,
+        video_id: str,
+        on_by_default: bool = False
+    ):
         """
         Disable captions and AD on a Wistia video.
         """
@@ -123,13 +141,18 @@ class WistiaHelper:
         return WistiaDataApi.update_customizations(video_id, data)
 
     @classmethod
-    def customize_video_on_wistia(cls, video_id: str, player_color: str):
+    def customize_video_on_wistia(
+        cls,
+        video_id: str,
+        player_color: str
+    ):
         """Set commonly used customization options for a media on Wistia."""
         customizations = {'playerColor': player_color}
 
         r = WistiaDataApi.session().put(
             WistiaConfig.CUSTOMIZATION_URL.format(media_id=video_id),
-            json=customizations)
+            json=customizations
+        )
 
         try:
             r.raise_for_status()
@@ -142,23 +165,26 @@ class WistiaHelper:
         return r.json()
 
     @classmethod
-    def project_details(cls, project_id: str,
-                        projects: Optional[List[Dict]] = None
-                        ) -> Dict[str, Any]:
-        """
-        Retrieve details on a Wistia project. The optional parameter
-        `projects` contains info on all projects in the Wistia account, such
-        as a response from the `Projects:list` API.
+    def project_details(
+        cls,
+        project_id: str,
+        projects: Container[Project] | None = None
+    ) -> Project:
+        """Retrieve details on a Wistia project.
 
+        The optional parameter `projects` contains info on all projects in
+        the Wistia account, such as a response from the `Projects:list` API.
+
+        :raises NoSuchProject: If the project doesn't exist on Wistia
         """
         if not projects:
             projects = WistiaDataApi.list_all_projects()
 
         for p in projects:
-            if p['hashedId'] == project_id:
+            if p.hashed_id == project_id:
                 project = p
                 break
         else:
-            project = {}
+            raise NoSuchProject(project_id)
 
         return project

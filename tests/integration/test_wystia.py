@@ -26,7 +26,7 @@ def test_call_embed_api(real_video_id):
     ved = WistiaEmbedApi.get_data(real_video_id)
     assert_time(start, is_mock=False)
 
-    log.info('Video Embed object: %r', VideoEmbedData(**ved))
+    log.info('Video Embed object: %s', ved)
 
     start = time()
     num_assets = WistiaEmbedApi.num_assets(media_data=ved)
