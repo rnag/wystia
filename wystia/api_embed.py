@@ -4,7 +4,7 @@ from requests import Session
 
 from .api_base import _BaseWistiaApi
 from .config import WistiaConfig
-from .errors import NoSuchVideo
+from .errors import NoSuchMedia
 from .models import VideoEmbedData
 
 
@@ -14,7 +14,7 @@ class WistiaEmbedApi(_BaseWistiaApi):
       https://wistia.com/support/developers/embed-options
 
     """
-    API_ENDPOINT = WistiaConfig.EMBED_URL
+    _API_ENDPOINT = WistiaConfig.EMBED_URL
 
     @classmethod
     def _get_session(cls, additional_status_force_list=None) -> Session:
@@ -40,7 +40,7 @@ class WistiaEmbedApi(_BaseWistiaApi):
         if 'error' in data:
             # Wistia Embed response contains an error object like below:
             #   {'error': True, 'iframe': True}
-            raise NoSuchVideo(video_id)
+            raise NoSuchMedia(video_id)
 
         return VideoEmbedData.from_dict(data.get('media', {}))
 

@@ -4,7 +4,7 @@ Project-specific exception classes
 __all__ = ['WistiaError',
            'ContentIsEmpty',
            'NoSuchProject',
-           'NoSuchVideo',
+           'NoSuchMedia',
            'VideoHasCaptions',
            'UploadFailed']
 
@@ -52,11 +52,11 @@ class NoSuchProject(WistiaError):
         super(NoSuchProject, self).__init__(msg, project_id=project_id)
 
 
-class NoSuchVideo(WistiaError):
+class NoSuchMedia(WistiaError):
 
-    def __init__(self, video_id):
-        msg = 'Video does not exist, or was deleted from Wistia.'
-        super(NoSuchVideo, self).__init__(msg, video_id=video_id)
+    def __init__(self, media_id):
+        msg = 'Video (or media) does not exist, or was deleted from Wistia.'
+        super(NoSuchMedia, self).__init__(msg, media_id=media_id)
 
 
 class VideoHasCaptions(WistiaError):

@@ -66,12 +66,12 @@ def test_request_count_is_shared(
 
 
 def test_wistia_error_logs_with_expected_kwargs(mock_log, mock_video_id):
-    _ = NoSuchVideo(mock_video_id)
+    _ = NoSuchMedia(mock_video_id)
 
     mock_log.error.assert_called_with(
         '%s: %s',
-        'NoSuchVideo',
-        'Video does not exist, or was deleted from Wistia. video_id={}'.format(
+        'NoSuchMedia',
+        'Video (or media) does not exist, or was deleted from Wistia. media_id={}'.format(
             mock_video_id))
 
 
@@ -121,7 +121,7 @@ def test_video_data_methods():
     )
 
     assert vd.duration == 7.2
-    assert vd.status == VideoStatus.NOT_FOUND
+    assert vd.status == MediaStatus.NOT_FOUND
     assert not vd.ad_disabled
 
     log.debug('Video Data object: %s', vd)
@@ -243,7 +243,7 @@ def test_upload_response_methods(mock_video_id):
     assert ur.description == description
     assert ur.hashed_id == mock_video_id
     assert ur.duration == duration
-    assert ur.status == VideoStatus(status)
+    assert ur.status == MediaStatus(status)
     assert ur.created.isoformat() == created_string
     assert not ur.progress  # eq: 0
 

@@ -22,13 +22,13 @@ class _BaseApi(ABC):
     """
 
     # Base API endpoint
-    API_ENDPOINT: str = NotImplemented
+    _API_ENDPOINT: str = NotImplemented
 
     # Requests Session object, can be used if session caching is needed
     _SESSION: Session | None = None
 
     @classmethod
-    def get(cls, api, **kwargs):
+    def _get(cls, api, **kwargs):
         """Shortcut to make a ``GET`` request via the API"""
         return cls.request('GET', api, **kwargs)
 
@@ -235,7 +235,7 @@ class _BaseWistiaApi(_BaseApi):
             auth=('api', cls._API_TOKEN),
             additional_status_force_list=additional_status_force_list)
 
-        return prefix_url_session(cls.API_ENDPOINT, session)
+        return prefix_url_session(cls._API_ENDPOINT, session)
 
     @classmethod
     def _request_page(

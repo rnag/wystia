@@ -4,7 +4,7 @@ __all__ = ['LanguageCode',
            'MediaType',
            'SortBy',
            'SortDir',
-           'VideoStatus',
+           'MediaStatus',
            'Container',
            'Project',
            'Media',
@@ -80,8 +80,13 @@ class SortDir(Enum):
     ASC = 1
 
 
-class VideoStatus(Enum):
+class MediaStatus(Enum):
+    """Describes the current status of Media files.
 
+    The status indicates which stage in processing the file is at.
+      https://wistia.com/support/developers/data-api#media-status
+
+    """
     # the file has been fully processed and is ready for embedding and viewing
     READY = 'ready'
     # the file is actively being processed
@@ -90,8 +95,8 @@ class VideoStatus(Enum):
     QUEUED = 'queued'
     # the file was unable to be processed (usually a format or size error)
     FAILED = 'failed'
-    # custom enum member, indicates that video was taken down from Wistia
-    # this is not part of the Wistia API
+    # custom enum member, indicates that media was taken down from Wistia
+    # note: this is not part of the Wistia API
     NOT_FOUND = 'not_found'
 
 
@@ -160,20 +165,50 @@ class Media(JSONWizard, metaclass=display_with_pformat):
     """
     class _(JSONWizard.Meta):
         raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
+        skip_defaults = True
 
     hashed_id: str
     id: int
     name: str
-    description: str
     type: MediaType
     created: datetime
     updated: datetime
-    progress: float
-    thumbnail: Thumbnail
-    section: str | None = None
+    # Note: only videos have this attribute set; thumbnails and other
+    # medias don't.
     duration: float | None = None
+    status: MediaStatus = MediaStatus.NOT_FOUND
+    description: str = ''
+    progress: float = 0.0
+    thumbnail: Thumbnail = None
+    project: ProjectInfo | None = None
+    embed_code: str = json_field('', repr=False, dump=False, default=None)
+    assets: list[Asset] = None
+    section: str | None = None
 
-    status: VideoStatus = VideoStatus.NOT_FOUND
+    def __post_init__(self):
+        # Media (video) titles seem to include encoded characters
+        # like '&amp;' in the response, but not in the title displayed
+        # on the Wistia project page.
+        self.name = self.name.replace('&amp;', '&')
+
+        # Sometimes the description for media (videos) will come as a newline
+        # in the response, but it's actually empty on the Wistia page. So
+        # we'll replace a newline with an empty string; that way it's also
+        # dropped when the `to_json` method is called, for example.
+        if self.description == '\n':
+            self.description = ''
+
+    @cached_property
+    def project_id(self) -> str:
+        """Return the project's hashed id."""
+        return self.project.hashed_id if self.project else ''
+
+    def set_project_id(self, project_id: str):
+        """Set the project's hashed id for the media."""
+        if self.project:
+            self.project.hashed_id = project_id
+        else:
+            self.project = ProjectInfo(project_id)
 
 
 @dataclass
@@ -209,15 +244,15 @@ class Video(Media, JSONWizard, metaclass=display_with_pformat):
     """
     class _(JSONWizard.Meta):
         raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
+        skip_defaults = True
 
+    # Override the type annotations as needed.
     duration: float = 0.0
     project: ProjectInfo = None
-    assets: list[Asset] = field(default_factory=list)
-    embed_code: str = json_field('', repr=False, dump=False, default=None)
 
     # Not included in GET '/v1/medias' response, but technically
     # still part of video metadata.
-    has_audio_description: bool = False
+    has_audio_description: bool | None = None
     captions_enabled: bool | None = None
     overlay_text: str | None = None
     caption_duration: float | None = None
@@ -225,34 +260,31 @@ class Video(Media, JSONWizard, metaclass=display_with_pformat):
     ad_disabled: bool | None = None
 
     def __post_init__(self):
-        # Media (video) titles seem to include encoded characters
-        # like '&amp;' in the response, but not in the title displayed
-        # on the Wistia project page.
-        self.name = self.name.replace('&amp;', '&')
-
         if self.type is not MediaType.VIDEO:
             return
 
-        for asset in self.assets:
-            if asset.type == 'AlternateAudioFile':
-                self.has_audio_description = True
-                break
+        # Check if `assets` are populated for the video.
+        #
+        # For some cases, like in the response for the `Projects#show` API,
+        # neither the `assets` or `project` data will be populated.
+        if self.assets is not None:
+            for asset in self.assets:
+                if asset.type == 'AlternateAudioFile':
+                    self.has_audio_description = True
+                    break
+            else:
+                self.has_audio_description = False
 
         if not self.duration:
             # There are rare cases when 'duration' field is missing from
             # response. This usually also means video is inaccessible from the
             # webpage, so we might need to contact Wistia Support to resolve
             # the issue.
-            self.status = VideoStatus.FAILED
+            self.status = MediaStatus.FAILED
             self.duration = 0.0
             LOG.error(
                 f'Video ({self.hashed_id}) is missing a required field '
                 'in get_video response')
-
-    @cached_property
-    def project_id(self) -> str:
-        """Return the project's hashed id."""
-        return self.project.hashed_id if self.project else ''
 
     @classmethod
     def load_video(cls, video_id: str) -> Video:
@@ -400,7 +432,7 @@ class UploadResponse(JSONWizard, metaclass=display_with_pformat):
     progress: float
     thumbnail: Thumbnail
     duration: float | None = None
-    status: VideoStatus = VideoStatus.QUEUED
+    status: MediaStatus = MediaStatus.QUEUED
 
 
 ############################

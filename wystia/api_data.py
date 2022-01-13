@@ -29,7 +29,7 @@ class WistiaDataApi(_BaseWistiaApi):
         - Captions
 
     """
-    API_ENDPOINT = WistiaConfig.API_URL
+    _API_ENDPOINT = WistiaConfig.API_URL
 
     # --------------------------
     # -       PROJECTS         -
@@ -218,14 +218,45 @@ class WistiaDataApi(_BaseWistiaApi):
     def list_videos(
         cls,
         project_id: str | None = None,
-        media_name: str | None = None,
-        media_type: MediaType | None = None,
+        video_name: str | None = None,
+        media_type: MediaType | None = MediaType.VIDEO,
         video_id: str | None = None,
         sort_by: SortBy | None = None,
         sort_dir: SortDir | None = None
     ) -> Container[Video]:
         """
         Get all videos for a Wistia project or by other criteria, via the
+        `Medias#list` API:
+          https://wistia.com/support/developers/data-api#medias_list
+
+        Defaults to sorting by Project ID. You can pass the`sort_by` argument
+        to sort by another value.
+
+        :raises NoSuchProject: If the project does not exist on Wistia
+        """
+        return cls.list_medias(
+            project_id=project_id,
+            media_name=video_name,
+            media_type=media_type,
+            media_id=video_id,
+            sort_by=sort_by,
+            sort_dir=sort_dir,
+            model_cls=Video
+        )
+
+    @classmethod
+    def list_medias(
+        cls,
+        project_id: str | None = None,
+        media_name: str | None = None,
+        media_type: MediaType | None = None,
+        media_id: str | None = None,
+        sort_by: SortBy | None = None,
+        sort_dir: SortDir | None = None,
+        model_cls: type[T] = Media
+    ) -> Container[T | Media]:
+        """
+        Get all medias for a Wistia project or by other criteria, via the
         `Medias#list` API:
           https://wistia.com/support/developers/data-api#medias_list
 
@@ -241,8 +272,8 @@ class WistiaDataApi(_BaseWistiaApi):
             params['name'] = media_name
         if media_type:
             params['type'] = media_type.value
-        if video_id:
-            params['hashed_id'] = video_id
+        if media_id:
+            params['hashed_id'] = media_id
         if sort_by:
             params['sort_by'] = sort_by.value
         if sort_dir:
@@ -251,7 +282,7 @@ class WistiaDataApi(_BaseWistiaApi):
         try:
             data = cls.list_page(
                 WistiaConfig.MEDIAS_URL,
-                data_model=Video,
+                data_model=model_cls,
                 params=params
             )
         except HTTPError as e:
@@ -261,12 +292,16 @@ class WistiaDataApi(_BaseWistiaApi):
         return data
 
     @classmethod
-    def get_video(cls, video_id: str) -> Video:
+    def get_video(
+        cls,
+        video_id: str,
+        model_cls: type[T] = Video
+    ) -> T | Video:
         """
         Get information on a Wistia video, via the `Medias#show` API:
           https://wistia.com/support/developers/data-api#medias_show
 
-        :raises NoSuchVideo: If the video does not exist on Wistia
+        :raises NoSuchMedia: If the video does not exist on Wistia
         """
         r = cls.session().get(
             WistiaConfig.MEDIAS_SHOW_URL.format(media_id=video_id)
@@ -275,9 +310,19 @@ class WistiaDataApi(_BaseWistiaApi):
         try:
             r.raise_for_status()
         except HTTPError as e:
-            raise NoSuchVideo(video_id) if cls._has_resp_status(e, 404) else e
+            raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
-        return Video.from_dict(r.json())
+        return model_cls.from_dict(r.json())
+
+    @classmethod
+    def get_media(cls, media_id: str) -> Media:
+        """
+        Get information on a Wistia media, via the `Medias#show` API:
+          https://wistia.com/support/developers/data-api#medias_show
+
+        :raises NoSuchMedia: If the media does not exist on Wistia
+        """
+        return cls.get_video(media_id, model_cls=Media)
 
     @classmethod
     def update_video(
@@ -288,40 +333,70 @@ class WistiaDataApi(_BaseWistiaApi):
         thumbnail_media_id: str | None = None
     ) -> Video:
         """
+        Updates attributes on a video, via the `Medias#update` API:
+          https://wistia.com/support/developers/data-api#medias_update
+
+        :param video_id: The hashed id of the video on Wistia.
+        :param video_name: An optional new name for the video.
+        :param video_desc: An optional new description for this video. Accepts
+          plain text or markdown.
+        :param thumbnail_media_id: The Wistia hashed ID of an image that will
+          replace the still that’s displayed before the player starts playing.
+        :raises NoSuchMedia: If the video does not exist on Wistia
+        """
+        return cls.update_media(
+            media_id=video_id,
+            media_name=video_name,
+            media_desc=video_desc,
+            thumbnail_media_id=thumbnail_media_id,
+            model_cls=Video
+        )
+
+    @classmethod
+    def update_media(
+        cls,
+        media_id: str,
+        media_name: str | None = None,
+        media_desc: str | None = None,
+        thumbnail_media_id: str | None = None,
+        model_cls: type[T] = Media
+    ) -> T | Media:
+        """
         Updates attributes on a media (generally a video), via the
         `Medias#update` API:
           https://wistia.com/support/developers/data-api#medias_update
 
-        :param video_id: The hashed id of the media on Wistia.
-        :param video_name: An optional new name for the media.
-        :param video_desc: An optional new description for this media. Accepts
+        :param media_id: The hashed id of the media on Wistia.
+        :param media_name: An optional new name for the media.
+        :param media_desc: An optional new description for this media. Accepts
           plain text or markdown.
         :param thumbnail_media_id: The Wistia hashed ID of an image that will
           replace the still that’s displayed before the player starts playing.
-        :raises NoSuchVideo: If the video does not exist on Wistia
+        :param model_cls: The model class to load the response data into.
+        :raises NoSuchMedia: If the media does not exist on Wistia
         """
         data = {}
-        if video_name:
-            data['name'] = video_name
-        if video_desc:
-            data['description'] = video_desc
+        if media_name:
+            data['name'] = media_name
+        if media_desc:
+            data['description'] = media_desc
         if thumbnail_media_id:
             data['new_still_media_id'] = thumbnail_media_id
 
         r = cls.session().put(
-            WistiaConfig.MEDIAS_SHOW_URL.format(media_id=video_id),
+            WistiaConfig.MEDIAS_SHOW_URL.format(media_id=media_id),
             data=data
         )
 
         try:
             r.raise_for_status()
         except HTTPError as e:
-            raise NoSuchVideo(video_id) if cls._has_resp_status(e, 404) else e
+            raise NoSuchMedia(media_id) if cls._has_resp_status(e, 404) else e
 
-        return Video.from_dict(r.json())
+        return model_cls.from_dict(r.json())
 
     @classmethod
-    def delete_video(cls, video_id: str):
+    def delete_media(cls, media_id: str):
         """
         Deletes a media (generally a video) from Wistia, via the
         `Medias#delete` API:
@@ -331,21 +406,25 @@ class WistiaDataApi(_BaseWistiaApi):
           deleted.
         """
         return cls.handle_delete(
-            WistiaConfig.MEDIAS_SHOW_URL.format(media_id=video_id)
+            WistiaConfig.MEDIAS_SHOW_URL.format(media_id=media_id)
         )
+
+    # Alias
+    delete_video = delete_media
 
     @classmethod
     def copy_video(
         cls,
         video_id: str,
         dest_project_id: str | None = None,
-        owner: str | None = None
-    ) -> Video:
+        owner: str | None = None,
+        model_cls: type[T] = Video
+    ) -> T | Video:
         """
         Copy a video, optionally to another project, via the `Medias#copy` API:
           https://wistia.com/support/developers/data-api#medias_copy
 
-        :raises NoSuchVideo: If the video does not exist on Wistia
+        :raises NoSuchMedia: If the video does not exist on Wistia
         :raises NoSuchProject: If the project does not exist on Wistia
         """
         data = {}
@@ -367,11 +446,32 @@ class WistiaDataApi(_BaseWistiaApi):
                     # Project does not exist
                     raise NoSuchProject(dest_project_id)
                 # Video does not exist
-                raise NoSuchVideo(video_id)
+                raise NoSuchMedia(video_id)
             else:
                 raise e
 
-        return Video.from_dict(r.json())
+        return model_cls.from_dict(r.json())
+
+    @classmethod
+    def copy_media(
+        cls,
+        media_id: str,
+        dest_project_id: str | None = None,
+        owner: str | None = None
+    ) -> Media:
+        """
+        Copy a media, optionally to another project, via the `Medias#copy` API:
+          https://wistia.com/support/developers/data-api#medias_copy
+
+        :raises NoSuchMedia: If the media does not exist on Wistia
+        :raises NoSuchProject: If the project does not exist on Wistia
+        """
+        return cls.copy_video(
+            media_id,
+            dest_project_id,
+            owner,
+            model_cls=Media
+        )
 
     @classmethod
     def get_stats_for_video(cls, video_id: str) -> VideoStats:
@@ -380,7 +480,7 @@ class WistiaDataApi(_BaseWistiaApi):
         `Medias#stats` API:
           https://wistia.com/support/developers/data-api#medias_stats
 
-        :raises NoSuchVideo: If the video does not exist on Wistia
+        :raises NoSuchMedia: If the video does not exist on Wistia
         """
         r = cls.session().get(
             WistiaConfig.MEDIAS_STATS_URL.format(media_id=video_id))
@@ -388,7 +488,7 @@ class WistiaDataApi(_BaseWistiaApi):
         try:
             r.raise_for_status()
         except HTTPError as e:
-            raise NoSuchVideo(video_id) if cls._has_resp_status(e, 404) else e
+            raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
         return VideoStats.from_dict(r.json())
 
@@ -403,7 +503,7 @@ class WistiaDataApi(_BaseWistiaApi):
         `Customizations#show` API:
           https://wistia.com/support/developers/data-api#customizations_show
 
-        :raises NoSuchVideo: If the video does not exist on Wistia
+        :raises NoSuchMedia: If the video does not exist on Wistia
         """
         r = cls.session().get(
             WistiaConfig.CUSTOMIZATION_URL.format(media_id=video_id))
@@ -411,7 +511,7 @@ class WistiaDataApi(_BaseWistiaApi):
         try:
             r.raise_for_status()
         except HTTPError as e:
-            raise NoSuchVideo(video_id) if cls._has_resp_status(e, 404) else e
+            raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
         return r.json()
 
@@ -425,14 +525,14 @@ class WistiaDataApi(_BaseWistiaApi):
           https://wistia.com/support/developers/data-api#customizations_create
 
         :return: The new customizations on the video
-        :raises NoSuchVideo: If the video does not exist on Wistia
+        :raises NoSuchMedia: If the video does not exist on Wistia
         """
         r = cls.session().post(WistiaConfig.CUSTOMIZATION_URL.format(
             media_id=video_id), json=customizations)
         try:
             r.raise_for_status()
         except HTTPError as e:
-            raise NoSuchVideo(video_id) if cls._has_resp_status(e, 404) else e
+            raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
         return r.json()
 
@@ -446,14 +546,14 @@ class WistiaDataApi(_BaseWistiaApi):
           https://wistia.com/support/developers/data-api#customizations_update
 
         :return: The new customizations on the video
-        :raises NoSuchVideo: If the video does not exist on Wistia
+        :raises NoSuchMedia: If the video does not exist on Wistia
         """
         r = cls.session().put(WistiaConfig.CUSTOMIZATION_URL.format(
             media_id=video_id), json=customizations)
         try:
             r.raise_for_status()
         except HTTPError as e:
-            raise NoSuchVideo(video_id) if cls._has_resp_status(e, 404) else e
+            raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
         return r.json()
 
@@ -481,7 +581,7 @@ class WistiaDataApi(_BaseWistiaApi):
 
         The text of the captions will be in SRT format.
 
-        :raises NoSuchVideo: If the video does not exist on Wistia.
+        :raises NoSuchMedia: If the video does not exist on Wistia.
         """
         r = cls.session().get(
             WistiaConfig.ALL_CAPTIONS_URL.format(media_id=video_id))
@@ -489,7 +589,7 @@ class WistiaDataApi(_BaseWistiaApi):
         try:
             r.raise_for_status()
         except HTTPError as e:
-            raise NoSuchVideo(video_id) if r.status_code == 404 else e
+            raise NoSuchMedia(video_id) if r.status_code == 404 else e
 
         return r.json()
 
@@ -607,16 +707,46 @@ class WistiaDataApi(_BaseWistiaApi):
                 media_id=video_id, lang_code=lang_code.value))
 
     @classmethod
-    def order_captions(cls, video_id: str):
+    def order_captions(
+        cls,
+        video_id: str,
+        automated: bool = False,
+        rush: bool = True,
+        automatically_enable: bool = True
+    ) -> None:
         """
         Purchase English captions on a Wistia video, via the
         `Captions#purchase` API:
           https://wistia.com/support/developers/data-api#captions_purchase
 
+        :param video_id: The hashed id of the video to order captions for.
+        :param automated: Set to true to order computer-generated
+          captions ($0.25/minute) or false to order human-generated
+          captions ($2.50/minute).
+          Defaults to false.
+        :param rush: Set to true to enable a rush order (one business day
+          turnaround, $4.00/minute), or false to retain the standard four
+          business day turnaround for human-generated captions ($2.50/minute).
+          Defaults to true.
+        :param automatically_enable: Set to true to automatically enable
+          captions for the video as soon as the order is ready or false to
+          hold the captions for review before manually enabling them.
+          Defaults to true.
+        :raises VideoHasCaptions: If English captions already exist for
+          the video.
+        :raises NoSuchMedia: If the video does not exist.
+
         """
+        params = {
+            'automated': automated,
+            'rush': rush,
+            'automatically_enable': automatically_enable
+        }
+
         r = cls.session().post(
-            WistiaConfig.CAPTIONS_ORDER_URL.format(
-                media_id=video_id))
+            WistiaConfig.CAPTIONS_ORDER_URL.format(media_id=video_id),
+            params=params
+        )
 
         try:
             r.raise_for_status()
@@ -625,6 +755,8 @@ class WistiaDataApi(_BaseWistiaApi):
             if r.status_code == 400:
                 raise VideoHasCaptions(video_id)
             elif r.status_code == 404:
-                raise NoSuchVideo(video_id)
+                raise NoSuchMedia(video_id)
             else:
                 raise
+
+        return None

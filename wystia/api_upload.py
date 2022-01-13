@@ -20,7 +20,7 @@ class WistiaUploadApi(_BaseWistiaApi):
       https://wistia.com/support/developers/upload-api
 
     """
-    API_ENDPOINT = WistiaConfig.UPLOAD_URL
+    _API_ENDPOINT = WistiaConfig.UPLOAD_URL
 
     @classmethod
     def upload_file(
