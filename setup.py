@@ -32,7 +32,7 @@ history = (here / 'HISTORY.rst').read_text()
 
 setup(
     name='wystia',
-    version='0.3.0',
+    version='1.0.0',
     description='A Python wrapper library for the Wistia API',
     long_description=readme + '\n\n' + history,
     author='Ritvik Nag',
