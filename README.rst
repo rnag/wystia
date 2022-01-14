@@ -33,11 +33,10 @@ A Python wrapper library for the Wistia API
 * Documentation: https://wystia.readthedocs.io.
 * Wistia Developer Docs: https://wistia.com/support/developers.
 
-Installing Wystia and Supported Versions
-----------------------------------------
+Installation
+------------
 
-The Wystia (Wistia helper) library is available on PyPI, and can
-be installed with ``pip``:
+The Wystia (Wistia helper) library is available `on PyPI`_, and can be installed with ``pip``:
 
 .. code-block:: shell
 
@@ -192,10 +191,6 @@ Another option is to use the global ``configure`` method as shown below:
 
     WistiaDataApi.configure('MY-API-TOKEN')
 
-
-.. _Quickstart: https://wystia.readthedocs.io/en/latest/usage.html
-.. _examples/: https://github.com/rnag/wystia/tree/main/examples
-
 Data API
 --------
 
@@ -262,5 +257,8 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+.. _on PyPI: https://pypi.org/project/dataclass-wizard/
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _Quickstart: https://wystia.readthedocs.io/en/latest/usage.html
+.. _examples/: https://github.com/rnag/wystia/tree/main/examples
