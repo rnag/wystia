@@ -12,8 +12,8 @@ Wistia API Helper
 .. image:: https://img.shields.io/pypi/pyversions/wystia.svg
         :target: https://pypi.org/project/wystia
 
-.. image:: https://travis-ci.com/rnag/wystia.svg?branch=main
-        :target: https://travis-ci.com/rnag/wystia
+.. image:: https://github.com/rnag/wystia/actions/workflows/dev.yml/badge.svg
+        :target: https://github.com/rnag/wystia/actions/workflows/dev.yml
 
 .. image:: https://readthedocs.org/projects/wystia/badge/?version=latest
         :target: https://wystia.readthedocs.io/en/latest/?version=latest

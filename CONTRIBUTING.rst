@@ -103,7 +103,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 3.7, 3.8, 3.9 and 3.10, and for PyPy. Check
-   https://travis-ci.com/github/rnag/wystia/pull_requests
+   https://github.com/rnag/wystia/actions/workflows/dev.yml
    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -117,12 +117,26 @@ $ pytest tests/unit/test_wystia.py::test_request_count_is_shared
 Deploying
 ---------
 
+.. note:: **Tip:** The last command below is used to push both the commit and
+  the new tag to the remote branch simultaneously. There is also a simpler
+  alternative as mentioned in `this post`_, which involves running the following
+  command::
+
+  $ git config --global push.followTags true
+
+  After that, you should be able to simply run the below command to push *both
+  the commits and tags* simultaneously::
+
+  $ git push
+
 A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in HISTORY.rst).
 Then run::
 
 $ bump2version patch # possible: major / minor / patch
-$ git push
-$ git push --tags
+$ git push && git push --tags
 
-Travis will then deploy to PyPI if tests pass.
+GitHub Actions will then `deploy to PyPI`_ if tests pass.
+
+.. _`deploy to PyPI`: https://github.com/rnag/wystia/actions/workflows/release.yml
+.. _`this post`: https://stackoverflow.com/questions/3745135/push-git-commits-tags-simultaneously
