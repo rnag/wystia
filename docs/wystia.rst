@@ -92,22 +92,6 @@ wystia.models module
    :undoc-members:
    :show-inheritance:
 
-wystia.models\_default module
------------------------------
-
-.. automodule:: wystia.models_default
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-wystia.models\_py35 module
---------------------------
-
-.. automodule:: wystia.models_py35
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 wystia.requests\_config module
 ------------------------------
 

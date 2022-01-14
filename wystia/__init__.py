@@ -8,7 +8,8 @@ Docs:
     - https://wistia.com/support/developers/embed-options
 
 """
-__all__ = ['WistiaDataApi',
+__all__ = ['WistiaApi',
+           'WistiaDataApi',
            'WistiaEmbedApi',
            'WistiaUploadApi',
            'WistiaHelper']
@@ -21,9 +22,13 @@ from .api_upload import WistiaUploadApi
 from .api_helper import WistiaHelper
 
 
+# A handy alias in case it comes in useful to anyone :-)
+WistiaApi = WistiaDataApi
+
+
 __author__ = 'Ritvik Nag'
 __email__ = 'rv.kvetch@gmail.com'
-__version__ = '0.3.0'
+__version__ = '1.0.0'
 
 
 # Set up logging to ``/dev/null`` like a library is supposed to.

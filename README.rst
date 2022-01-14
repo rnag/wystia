@@ -1,6 +1,6 @@
-=================
-Wistia API Helper
-=================
+==========================
+Wystia - Wistia API Helper
+==========================
 
 
 .. image:: https://img.shields.io/pypi/v/wystia.svg
@@ -12,8 +12,8 @@ Wistia API Helper
 .. image:: https://img.shields.io/pypi/pyversions/wystia.svg
         :target: https://pypi.org/project/wystia
 
-.. image:: https://travis-ci.com/rnag/wystia.svg?branch=main
-        :target: https://travis-ci.com/rnag/wystia
+.. image:: https://github.com/rnag/wystia/actions/workflows/dev.yml/badge.svg
+        :target: https://github.com/rnag/wystia/actions/workflows/dev.yml
 
 .. image:: https://readthedocs.org/projects/wystia/badge/?version=latest
         :target: https://wystia.readthedocs.io/en/latest/?version=latest
@@ -33,60 +33,85 @@ A Python wrapper library for the Wistia API
 * Documentation: https://wystia.readthedocs.io.
 * Wistia Developer Docs: https://wistia.com/support/developers.
 
+Installation
+------------
+
+The Wystia (Wistia helper) library is available `on PyPI`_, and can be installed with ``pip``:
+
+.. code-block:: shell
+
+    $ pip install wystia
+
+The ``wystia`` library officially supports **Python 3.7** or higher.
 
 Usage
 -----
 
 Sample usage with the `Data API <https://wistia.com/support/developers/data-api>`_:
 
+    Note: The following example makes use of ``WistiaApi``, which is an alias to
+    the class ``WistiaDataApi``.
+
 .. code-block:: python3
 
-    from wystia import WistiaDataApi
-    from wystia.models import SortBy, LanguageCode, VideoData
+    from wystia import WistiaApi
+    from wystia.models import SortBy, LanguageCode, Customizations, Private
+
+    # Setup the Wistia API token to use for requests. You can alternatively
+    # set this via the env variable 'WISTIA_API_TOKEN'.
+    WistiaApi.configure('MY-TOKEN')
 
     # Retrieve a list of all projects in the Wistia account,
     # sorted A-Z and in ascending order.
-    projects = WistiaDataApi.list_all_projects(SortBy.NAME)
-    project_ids = [p['hashedId'] for p in projects]
+    projects = WistiaApi.list_all_projects(SortBy.NAME)
+    project_ids = [p.hashed_id for p in projects]
+    # Print the project data as a prettified JSON string
+    print(projects.prettify())
 
     # Retrieve a list of videos for a Wistia project.
     # Note: If you don't require asset info (such as ADs) on each
     #   video, I suggest calling `list_project` instead.
-    videos = WistiaDataApi.list_videos('project-id')
+    videos = WistiaApi.list_videos('project-id')
 
     # Retrieve info on a particular video
-    video_dict = WistiaDataApi.get_video('video-id')
-    vd = VideoData(**video_dict)
+    vd = WistiaApi.get_video('video-id')
     # If the video has captions, that won't be included in the `Medias#show`
     # response by default, so we'll need a separate API call as below.
     # vd.process_captions(
-    #     WistiaDataApi.list_captions(real_video_id))
+    #     WistiaApi.list_captions(real_video_id))
     print(vd)
 
     # Update attributes on a media (video), or set a custom thumbnail on the video.
-    WistiaDataApi.update_video(
-        'video-id', thumbnail_media_id='uploaded-thumbnail-id')
+    WistiaApi.update_video(
+        'video-id',
+        thumbnail_media_id='uploaded-thumbnail-id'
+    )
 
     # Get aggregated stats for a video, such as view count
-    stats = WistiaDataApi.get_stats_for_video('video-id')
+    stats = WistiaApi.get_stats_for_video('video-id')
 
     # Retrieve the customization data for a video
-    customizations = WistiaDataApi.get_customizations('video-id')
+    customizations = WistiaApi.get_customizations('video-id')
 
     # Update only specific customizations for a video
     # Note the embed options are documented here:
     #   https://wistia.com/support/developers/embed-options
-    WistiaDataApi.update_customizations('video-id',
-                                        {'playerColor': '#e7fad1',
-                                         # Hide comments on the media page
-                                         'private': {'show_comments': 'false'}})
+    sample_embed_options = Customizations(
+        player_color='#e7fad1',
+        # Hide comments on the media page
+        private=Private(show_comments=False)
+    )
+    WistiaApi.update_customizations('video-id', sample_embed_options)
 
     # Get the Spanish captions on a video
-    captions = WistiaDataApi.get_captions('video-id', LanguageCode.SPANISH)
+    captions = WistiaApi.get_captions('video-id', LanguageCode.SPANISH)
 
     # Add (or replace) the English captions on a video
-    WistiaDataApi.update_captions('video-id', LanguageCode.ENGLISH,
-                                  srt_file='path/to/file.srt')
+    WistiaApi.update_captions(
+        'video-id',
+        LanguageCode.ENGLISH,
+        srt_file='path/to/file.srt'
+    )
 
 
 ... or to upload media via the `Upload API <https://wistia.com/support/developers/upload-api>`_:
@@ -146,18 +171,6 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
         print('Disabling captions and AD for the video')
         WistiaHelper.disable_captions_and_ad('video-id')
 
-
-Installing Wystia and Supported Versions
-----------------------------------------
-The Wystia (Wistia helper) library is available on PyPI:
-
-.. code-block:: shell
-
-    $ python -m pip install wystia
-
-The ``wystia`` library officially supports **Python 3.5** or higher.
-
-
 Getting Started
 ---------------
 
@@ -175,11 +188,15 @@ Another option is to use the global ``configure`` method as shown below:
 
     WistiaDataApi.configure('MY-API-TOKEN')
 
+There is additionally a `Quickstart`_ section in the docs which walks
+through - in more detail - how to get up and running with the
+Wystia library.
 
 Data API
 --------
 
-The wrapper class ``WistiaDataApi`` interacts with the Wistia Data API (docs below):
+The wrapper class ``WistiaDataApi`` (aliased to ``WistiaApi``) interacts
+with the Wistia Data API (docs below):
 
 - https://wistia.com/support/developers/data-api
 
@@ -200,6 +217,29 @@ The following sections in the API have *not* been implemented (mainly as I haven
 
 Tips
 ~~~~
+
+Containers
+==========
+
+In general, the API methods that begin with *list* - such as ``list_project`` -
+will return a ``Container`` object, which essentially acts as a thin wrapper
+around a collection of model classes. For all intents and purposes, this behaves
+exactly the same as a ``list`` object.
+
+One of the main benefits is that it implements a ``__str__`` method, which leverages
+the builtin ``pprint`` module in Python to pretty-print the Python object representation
+of each model or *dataclass* instance; this will format the output more nicely, for example
+whenever ``print(obj)`` is called on the `Container` result.
+
+The ``Container`` objects also implement the following convenience methods, which can
+be used to easily display the JSON string representation of the list of dataclass instances:
+
+    * ``to_json`` - Convert the list of instances to a JSON string.
+
+    * ``prettify`` - Convert the list of instances to a *prettified* JSON string.
+
+List Medias in a Project
+========================
 
 If you need to retrieve info on videos in a project and you
 don't need complete info such as a list of assets for the video,
@@ -242,5 +282,7 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+.. _on PyPI: https://pypi.org/project/wystia/
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _Quickstart: https://wystia.readthedocs.io/en/latest/quickstart.html

@@ -14,8 +14,6 @@ requirements:
   - requirements.txt:
       pin: False
   - requirements-dev.txt
-  - requirements-py35-dev.txt:
-      update: False
 # add a label to pull requests, default is not set
 label_prs: update
 # assign users to pull requests, default is not set

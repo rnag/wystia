@@ -1,5 +1,5 @@
-Welcome to Wistia API Helper's documentation!
-======================================
+Welcome to Wystia's documentation!
+==================================
 
 .. toctree::
    :maxdepth: 2
@@ -7,6 +7,7 @@ Welcome to Wistia API Helper's documentation!
 
    readme
    installation
+   quickstart
    usage
    modules
    contributing

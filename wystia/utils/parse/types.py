@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __all__ = ['as_bool',
            'as_int',
            'as_str',
@@ -6,10 +8,10 @@ __all__ = ['as_bool',
 
 from datetime import datetime
 from numbers import Number
-from typing import Union, List, Any, Type
+from typing import Any
 
 
-def as_bool(o: Union[str, bool], default=False):
+def as_bool(o: str | bool, default=False):
     """
     Return `o` if already a boolean, otherwise return the boolean value for a
     string. If `o` is None or an empty string, return `default` instead.
@@ -24,7 +26,7 @@ def as_bool(o: Union[str, bool], default=False):
     return o.upper() == 'TRUE'
 
 
-def as_type(o: Any, _type: Type = str, default=None, raise_=True):
+def as_type(o: Any, _type: type = str, default=None, raise_=True):
     if isinstance(o, _type):
         return o
 
@@ -39,7 +41,7 @@ def as_type(o: Any, _type: Type = str, default=None, raise_=True):
         return default
 
 
-def as_int(o: Union[str, int], default=0, raise_=True):
+def as_int(o: str | int, default=0, raise_=True):
     """
     Return `o` if already a int, otherwise return the int value for a
     string. If `o` is None or an empty string, return `default` instead.
@@ -51,7 +53,7 @@ def as_int(o: Union[str, int], default=0, raise_=True):
     return as_type(o, int, default, raise_)
 
 
-def as_str(o: Union[str, None], default='', raise_=True):
+def as_str(o: str | None, default='', raise_=True):
     """
     Return `o` if already a str, otherwise return the string value for `o`.
     If `o` is None or an empty string, return `default` instead.
@@ -63,7 +65,7 @@ def as_str(o: Union[str, None], default='', raise_=True):
     return as_type(o, str, default, raise_) or default
 
 
-def as_list(o: Union[str, List[str]], sep=','):
+def as_list(o: str | list[str], sep=','):
     """
     Return `o` if already a list. If `o` is None or an empty string,
     return an empty list. Otherwise, split the string on `sep` and
@@ -79,7 +81,7 @@ def as_list(o: Union[str, List[str]], sep=','):
     return o.split(sep)
 
 
-def as_datetime(o: Union[str, Number, datetime], default=None, raise_=True):
+def as_datetime(o: str | Number | datetime, default=None, raise_=True):
     """
     Return `o` if already a :class:`datetime` object, otherwise convert the
     object to a :class:`datetime` object using the below logic.

@@ -2,6 +2,37 @@
 History
 =======
 
+1.0.0 (2022-01-14)
+------------------
+
+**Breaking Changes**
+
+* Wystia has officially dropped support for Python versions 3.5 and 3.6.
+  The support for 3.6 needed to be dropped primarily because of the
+  ``from __future__ import annotations`` usage in the code.
+* Refactored all API helper classes to return model class objects as a result,
+  rather than Python ``dict`` objects. In the case of any `list`- related API responses,
+  we now return a ``Container`` object so that it can be easier to print or display
+  the result for debugging purposes.
+* All inputs to the API helper methods that previously accepted a ``dict`` object,
+  have in general been refactored to accept a model dataclass instance as an input instead.
+* Renamed some error classes; for example, ``NoSuchMedia`` instead of ``NoSuchVideo``.
+* Renamed some model classes; for example, ``MediaStatus`` instead of ``VideoStatus``.
+
+**Features and Improvements**
+
+* Added ``WistiaApi`` to the list of public exports, which is aliased to the
+  ``WistiaDataApi`` helper class.
+* Added new methods to the ``WistiaDataApi`` class for more explicitly
+  interacting with *medias* instead of *videos*. For example, a ``list_medias``
+  method is added as an alternative to calling ``list_videos``.
+* Refactored the CI process to use GitHub Workflows instead of Travis CI.
+* Added *3.10* to the list of supported Python versions.
+* Updated the project status from *Beta* to *Production/Stable*.
+* Added an ``examples/`` folder in the project repo on GitHub, which
+  contains Python scripts to demonstrate sample usage.
+* Updated docs and added a new *Quickstart* section.
+
 0.3.0 (2021-07-21)
 ------------------
 

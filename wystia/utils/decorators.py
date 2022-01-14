@@ -2,7 +2,15 @@
 Decorator utilities
 """
 import functools
+
 from requests.exceptions import ConnectionError as RequestsConnectionError
+
+
+try:
+    from functools import cached_property
+except ImportError:  # pragma: no cover
+    # Python 3.7
+    from cached_property import cached_property
 
 
 def retry_on_connection_error(func=None, max_retries=5):

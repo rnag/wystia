@@ -4,7 +4,7 @@ Project-specific exception classes
 __all__ = ['WistiaError',
            'ContentIsEmpty',
            'NoSuchProject',
-           'NoSuchVideo',
+           'NoSuchMedia',
            'VideoHasCaptions',
            'UploadFailed']
 
@@ -28,14 +28,8 @@ class WistiaError(Exception):
         super(WistiaError, self).__init__(self.message)
 
         if log_kwargs:
-            # TODO replace below with f-strings once we drop support for
-            #  Python 3.5
-            field_vals = ['{}={}'.format(k, v)
-                          for k, v in log_kwargs.items()]
-            message = '{}. {}'.format(
-                message.rstrip("."), ", ".join(field_vals))
-            # field_vals = [f'{k}={v}' for k, v in log_kwargs.items()]
-            # message = f'{message.rstrip(".")}. {", ".join(field_vals)}'
+            field_vals = [f'{k}={v}' for k, v in log_kwargs.items()]
+            message = f'{message.rstrip(".")}. {", ".join(field_vals)}'
 
         LOG.error('%s: %s', self.code, message)
 
@@ -58,11 +52,11 @@ class NoSuchProject(WistiaError):
         super(NoSuchProject, self).__init__(msg, project_id=project_id)
 
 
-class NoSuchVideo(WistiaError):
+class NoSuchMedia(WistiaError):
 
-    def __init__(self, video_id):
-        msg = 'Video does not exist, or was deleted from Wistia.'
-        super(NoSuchVideo, self).__init__(msg, video_id=video_id)
+    def __init__(self, media_id):
+        msg = 'Video (or media) does not exist, or was deleted from Wistia.'
+        super(NoSuchMedia, self).__init__(msg, media_id=media_id)
 
 
 class VideoHasCaptions(WistiaError):

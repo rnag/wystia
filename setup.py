@@ -1,28 +1,25 @@
-#!/usr/bin/env python
-
 """The setup script."""
+import pathlib
 
 from setuptools import setup
 
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
+here = pathlib.Path(__file__).parent
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
+package_name = 'wystia'
 
 packages = [
-    'wystia',
-    'wystia.utils',
-    'wystia.utils.parse'
+    package_name,
+    f'{package_name}.utils',
+    f'{package_name}.utils.parse'
 ]
 
 requires = [
     'requests',
     'requests-toolbelt',
-    'urllib3',
-    'dataclasses; python_version == "3.6"',
-    'backports-datetime-fromisoformat~=1.0.0; python_version < "3.7"'
+    'urllib3',  # should already be installed via requests
+    'dataclass-wizard>=0.18.0,<1.0',
+    'cached-property~=1.5.2; python_version == "3.7"'
 ]
 
 test_requirements = [
@@ -30,9 +27,12 @@ test_requirements = [
     'pytest-mock~=3.6.1'
 ]
 
+readme = (here / 'README.rst').read_text()
+history = (here / 'HISTORY.rst').read_text()
+
 setup(
     name='wystia',
-    version='0.3.0',
+    version='1.0.0',
     description='A Python wrapper library for the Wistia API',
     long_description=readme + '\n\n' + history,
     author='Ritvik Nag',
@@ -40,27 +40,27 @@ setup(
     url='https://github.com/rnag/wystia',
     packages=packages,
     include_package_data=True,
-    python_requires='>=3.5',
+    python_requires='>=3.7',
     install_requires=requires,
     license='MIT',
     keywords=['wistia', 'wistia api', 'wystia',
               'wistia data api', 'wistia upload api'],
-    zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        # Ref: https://pypi.org/classifiers/
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3 :: Only'
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python'
     ],
     test_suite='tests',
     tests_require=test_requirements,
+    zip_safe=False
 )

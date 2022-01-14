@@ -26,7 +26,7 @@ def test_call_embed_api(real_video_id):
     ved = WistiaEmbedApi.get_data(real_video_id)
     assert_time(start, is_mock=False)
 
-    log.info('Video Embed object: %r', VideoEmbedData(**ved))
+    log.info('Video Embed object: %s', ved)
 
     start = time()
     num_assets = WistiaEmbedApi.num_assets(media_data=ved)
@@ -147,7 +147,7 @@ def test_get_video(real_video_id):
 
 def test_get_video_when_no_such_video(mock_video_id):
     """Test case for `get_video` using an invalid video id"""
-    with pytest.raises(NoSuchVideo):
+    with pytest.raises(NoSuchMedia):
         _ = WistiaDataApi.get_video(mock_video_id)
 
 
@@ -191,7 +191,7 @@ def test_get_stats_for_video(real_video_id):
 
 def test_get_customizations_when_no_such_video(mock_video_id):
     """Test case for `get_customizations` using an invalid video id"""
-    with pytest.raises(NoSuchVideo):
+    with pytest.raises(NoSuchMedia):
         _ = WistiaDataApi.get_customizations(mock_video_id)
 
 
@@ -204,7 +204,7 @@ def test_get_customizations(real_video_id):
 def test_create_customizations_when_no_such_video(
         mock_video_id, customizations_to_set):
     """Test case for `create_customizations` using an invalid video id"""
-    with pytest.raises(NoSuchVideo):
+    with pytest.raises(NoSuchMedia):
         _ = WistiaDataApi.create_customizations(
             mock_video_id, customizations_to_set)
 
@@ -248,7 +248,7 @@ def test_list_captions(real_video_id):
 
 def test_list_captions_when_no_such_video(mock_video_id):
     """Test case for `list_captions` using an invalid video id"""
-    with pytest.raises(NoSuchVideo):
+    with pytest.raises(NoSuchMedia):
         _ = WistiaDataApi.list_captions(mock_video_id)
 
 
@@ -318,7 +318,7 @@ def test_delete_captions(real_video_id, real_captions_path):
 
 def test_order_captions_when_no_such_video(mock_video_id):
     """Test case for `order_captions` using an invalid video id"""
-    with pytest.raises(NoSuchVideo):
+    with pytest.raises(NoSuchMedia):
         _ = WistiaDataApi.order_captions(
             mock_video_id)
 

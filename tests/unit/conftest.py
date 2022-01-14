@@ -29,5 +29,14 @@ def mock_request(mocker: MockerFixture):
 
 
 @pytest.fixture
+def mock_from_dict(mocker: MockerFixture):
+    """
+    Mock the underlying :meth:`JSONSerializable.from_dict` method
+    so that the de-serialization process is mocked.
+    """
+    mocker.patch('dataclass_wizard.JSONSerializable.from_dict')
+
+
+@pytest.fixture
 def mock_open(mocker: MockerFixture):
     mocker.patch('wystia.api_upload.open', return_value=b'')
