@@ -1,6 +1,6 @@
-=================
-Wistia API Helper
-=================
+==========================
+Wystia - Wistia API Helper
+==========================
 
 
 .. image:: https://img.shields.io/pypi/v/wystia.svg
