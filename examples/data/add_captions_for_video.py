@@ -5,6 +5,7 @@ from pathlib import Path
 from wystia import WistiaApi
 from wystia.models import LanguageCode
 
+
 default_file_path = str(
     Path(__file__).parent.parent.parent
     / 'tests' / 'testdata' / 'sample-captions.srt'
