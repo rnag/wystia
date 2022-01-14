@@ -14,7 +14,13 @@ packages = [
     f'{package_name}.utils.parse'
 ]
 
-requires = (here / 'requirements.txt').read_text().splitlines()
+requires = [
+    'requests',
+    'requests-toolbelt',
+    'urllib3',  # should already be installed via requests
+    'dataclass-wizard>=0.18.0,<1.0',
+    'cached-property~=1.5.2; python_version == "3.7"'
+]
 
 test_requirements = [
     'pytest>=6',
