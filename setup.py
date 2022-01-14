@@ -34,27 +34,27 @@ setup(
     url='https://github.com/rnag/wystia',
     packages=packages,
     include_package_data=True,
-    python_requires='>=3.5',
+    python_requires='>=3.7',
     install_requires=requires,
     license='MIT',
     keywords=['wistia', 'wistia api', 'wystia',
               'wistia data api', 'wistia upload api'],
-    zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        # Ref: https://pypi.org/classifiers/
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3 :: Only'
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python'
     ],
     test_suite='tests',
     tests_require=test_requirements,
+    zip_safe=False
 )
