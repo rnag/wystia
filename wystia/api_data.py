@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from requests import HTTPError
 
@@ -516,9 +516,11 @@ class WistiaDataApi(_BaseWistiaApi):
         return Customizations.from_dict(r.json())
 
     @classmethod
-    def create_customizations(cls, video_id: str,
-                              customizations: dict[str, Any]
-                              ) -> dict[str, Any]:
+    def create_customizations(
+        cls,
+        video_id: str,
+        customizations: Customizations
+    ) -> Customizations:
         """
         Overwrites the customizations for a video on Wistia, via the
         `Customizations#create` API:
@@ -527,19 +529,24 @@ class WistiaDataApi(_BaseWistiaApi):
         :return: The new customizations on the video
         :raises NoSuchMedia: If the video does not exist on Wistia
         """
-        r = cls.session().post(WistiaConfig.CUSTOMIZATION_URL.format(
-            media_id=video_id), json=customizations)
+        r = cls.session().post(
+            WistiaConfig.CUSTOMIZATION_URL.format(media_id=video_id),
+            json=customizations.to_dict()
+        )
+
         try:
             r.raise_for_status()
         except HTTPError as e:
             raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
-        return r.json()
+        return Customizations.from_dict(r.json())
 
     @classmethod
-    def update_customizations(cls, video_id: str,
-                              customizations: dict[str, Any]
-                              ) -> dict[str, Any]:
+    def update_customizations(
+        cls,
+        video_id: str,
+        customizations: Customizations
+    ) -> Customizations:
         """
         Updates the customizations for a video on Wistia, via the
         `Customizations#update` API:
@@ -548,14 +555,17 @@ class WistiaDataApi(_BaseWistiaApi):
         :return: The new customizations on the video
         :raises NoSuchMedia: If the video does not exist on Wistia
         """
-        r = cls.session().put(WistiaConfig.CUSTOMIZATION_URL.format(
-            media_id=video_id), json=customizations)
+        r = cls.session().put(
+            WistiaConfig.CUSTOMIZATION_URL.format(media_id=video_id),
+            json=customizations.to_dict()
+        )
+
         try:
             r.raise_for_status()
         except HTTPError as e:
             raise NoSuchMedia(video_id) if cls._has_resp_status(e, 404) else e
 
-        return r.json()
+        return Customizations.from_dict(r.json())
 
     @classmethod
     def delete_customizations(cls, video_id: str):
@@ -573,7 +583,7 @@ class WistiaDataApi(_BaseWistiaApi):
     # --------------------------
 
     @classmethod
-    def list_captions(cls, video_id: str) -> list[dict[str, str | bool]]:
+    def list_captions(cls, video_id: str) -> Container[VideoCaptions]:
         """
         Retrieves all the captions on a Wistia video, via the
         `Captions#index` API:
@@ -591,39 +601,52 @@ class WistiaDataApi(_BaseWistiaApi):
         except HTTPError as e:
             raise NoSuchMedia(video_id) if r.status_code == 404 else e
 
-        return r.json()
+        list_of_captions = VideoCaptions.from_list(r.json())
+
+        # Return data as a `Container` type, so it's easier for a user
+        # to format (and visualize) the data as needed.
+        return Container(VideoCaptions, list_of_captions)
 
     @classmethod
-    def get_captions(cls, video_id: str,
-                     lang_code: LanguageCode) -> dict[str, str | bool]:
+    def get_captions(
+        cls,
+        video_id: str,
+        lang_code: LanguageCode
+    ) -> VideoCaptions | None:
         """
         Retrieves the captions for a specific language on a Wistia video,
         via the `Captions#show` API:
           https://wistia.com/support/developers/data-api#captions_show
 
         The text of the captions will be in SRT format. If no captions exist
-        for the specified language, an empty dictionary is returned.
+        for the specified language, a `None` value is returned.
         """
         r = cls.session().get(
             WistiaConfig.LANG_CAPTIONS_URL.format(
-                media_id=video_id, lang_code=lang_code.value))
+                media_id=video_id,
+                lang_code=lang_code.value
+            )
+        )
 
         try:
             r.raise_for_status()
         except HTTPError:
             if r.status_code == 404:
-                return {}
+                return None
             else:
                 # Unexpected error
                 raise
 
-        return r.json()
+        return VideoCaptions.from_dict(r.json())
 
     @classmethod
-    def create_captions(cls, video_id: str,
-                        lang_code: LanguageCode | None = None,
-                        srt_contents: str | None = None,
-                        srt_file: str | None = None):
+    def create_captions(
+        cls,
+        video_id: str,
+        lang_code: LanguageCode | None = None,
+        srt_contents: str | None = None,
+        srt_file: str | None = None
+    ) -> None:
         """
         Create new captions for a given language on a Wistia video, via the
         `Captions#create` API:
@@ -647,15 +670,23 @@ class WistiaDataApi(_BaseWistiaApi):
 
         r = cls.session().post(
             WistiaConfig.ALL_CAPTIONS_URL.format(media_id=video_id),
-            json=data)
+            json=data
+        )
 
+        # check if the request was a success
         r.raise_for_status()
 
+        # add an explicit return value
+        return None
+
     @classmethod
-    def update_captions(cls, video_id: str,
-                        lang_code: LanguageCode,
-                        srt_contents: str | None = None,
-                        srt_file: str | None = None):
+    def update_captions(
+        cls,
+        video_id: str,
+        lang_code: LanguageCode,
+        srt_contents: str | None = None,
+        srt_file: str | None = None
+    ) -> None:
         """
         Replace captions for a given language on a Wistia video, via the
         `Captions#update` API:
@@ -682,6 +713,7 @@ class WistiaDataApi(_BaseWistiaApi):
                 media_id=video_id, lang_code=lang_code.value),
             json=data)
 
+        # check if the request was a success
         try:
             r.raise_for_status()
         except HTTPError:
@@ -694,8 +726,15 @@ class WistiaDataApi(_BaseWistiaApi):
                 'lang_code=%s', video_id, lang_code.value)
             cls.create_captions(video_id, lang_code, srt_contents)
 
+        # add an explicit return value
+        return None
+
     @classmethod
-    def delete_captions(cls, video_id: str, lang_code: LanguageCode):
+    def delete_captions(
+        cls,
+        video_id: str,
+        lang_code: LanguageCode
+    ):
         """
         Deletes the captions for a video on Wistia, via the
         `Captions#delete` API:
@@ -704,7 +743,10 @@ class WistiaDataApi(_BaseWistiaApi):
         """
         return cls.handle_delete(
             WistiaConfig.LANG_CAPTIONS_URL.format(
-                media_id=video_id, lang_code=lang_code.value))
+                media_id=video_id,
+                lang_code=lang_code.value
+            )
+        )
 
     @classmethod
     def order_captions(

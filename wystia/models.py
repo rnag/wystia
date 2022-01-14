@@ -10,8 +10,31 @@ __all__ = ['LanguageCode',
            'Media',
            'Video',
            'VideoStats',
+           # Video Embed Options
            'Customizations',
+           'UnalteredStillImageAsset',
+           'Plugin',
+           'ThumbnailTextOverlay',
+           'ThumbnailTextOverlayV2',
+           'VideoThumbnail',
+           'MidrollLinkV1',
+           'Link',
+           'PostRollV1',
+           'Style',
+           'CaptionsV1',
+           'Chapters',
+           'ChapterList',
+           'Eventbrite',
+           'Share',
+           'RequireEmailV1',
+           'PasswordProtectedVideo',
+           'Private',
+           'Encrypted',
+           # Video Captions
+           'VideoCaptions',
+           # Video Embed Data
            'VideoEmbedData',
+           # Upload API models
            'UploadResponse']
 
 import json
@@ -119,18 +142,28 @@ class Container(list, Generic[W]):
         """Control the value displayed when print(self) is called."""
         return pprint.pformat(self)
 
-    def to_json(self, encoder: Encoder = json.dumps, **encoder_kwargs) -> str:
+    def to_json(self, encoder: Encoder = json.dumps,
+                ensure_ascii=False,
+                **encoder_kwargs) -> str:
         """Convert the list of instances to a JSON string."""
         # noinspection PyArgumentList
         return self._model.list_to_json(
             self,
             encoder=encoder,
+            ensure_ascii=ensure_ascii,
             **encoder_kwargs
         )
 
-    def to_pretty_json(self, encoder: Encoder = json.dumps) -> str:
+    def to_pretty_json(self, encoder: Encoder = json.dumps,
+                       ensure_ascii=False,
+                       **encoder_kwargs) -> str:
         """Convert the list of instances to a *prettified* JSON string."""
-        return self.to_json(indent=2, encoder=encoder)
+        return self.to_json(
+            indent=2,
+            encoder=encoder,
+            ensure_ascii=ensure_ascii,
+            **encoder_kwargs
+        )
 
 
 #########################
@@ -321,7 +354,7 @@ class Video(Media, JSONWizard, metaclass=display_with_pformat):
         """
         return self.caption_duration is not None
 
-    def process_captions(self, captions: list[dict]):
+    def process_captions(self, captions: Iterable[VideoCaptions]):
         """
         Process the response from the `Captions: Index` API for the video.
 
@@ -337,14 +370,14 @@ class Video(Media, JSONWizard, metaclass=display_with_pformat):
         caption_durations: list[float] = []
         for caption in captions:
             # lc = LanguageCode(caption['language'])
-            captions_end_seconds = get_srt_duration(caption['text'])
+            captions_end_seconds = get_srt_duration(caption.text)
 
             caption_durations.append(captions_end_seconds)
 
         self.num_captions = len(caption_durations)
         self.caption_duration = caption_durations[0]
 
-    def process_customizations(self, customizations):
+    def process_customizations(self, customizations: Customizations):
         """
         Process the response from the `Customizations: Show` API for the video.
 
@@ -357,15 +390,12 @@ class Video(Media, JSONWizard, metaclass=display_with_pformat):
         """
 
         # Check if ad is explicitly disabled
-        ad_disabled = customizations.get(
-            'audioDescriptionIsRequired', '').lower() == 'false'
-        overlay_text = customizations.get('plugin', {}).get(
-            'thumbnailTextOverlay-v2', {}).get('text') or ''
+        ad_disabled = customizations.audio_description_is_required is False
+        overlay_text = (customizations.plugin.thumbnail_text_overlay_v2
+                        or ThumbnailTextOverlayV2()).text
 
         self.ad_disabled = ad_disabled
-        self.captions_enabled = (customizations.get('plugin', {})
-                                 .get('captions-v1', {})
-                                 .get('on', 'false')).upper() == 'TRUE'
+        self.captions_enabled = customizations.plugin.captions_v1.on is True
         self.overlay_text = overlay_text.strip()
 
 
@@ -456,6 +486,7 @@ class Customizations(JSONWizard, metaclass=display_with_pformat):
     spherical: bool | None = None
     vulcan: bool | None = None
     video_quality: str = ''
+    muted: bool | None = None
 
 
 @dataclass
@@ -492,13 +523,17 @@ class Plugin:
     # Possibly deprecated in favor of V2; best to avoid using it directly.
     thumbnail_text_overlay: ThumbnailTextOverlay | None = None
     video_thumbnail: VideoThumbnail | None = None
-    midroll_link_v1: MidrollLinkV1 | None = None
-    post_roll_v1: PostRollV1 | None = None
-    captions_v1: CaptionsV1 = json_field('captions-v1', all=True, default_factory=CaptionsV1)
+    midroll_link_v1: MidrollLinkV1 | None = json_field(
+        'midrollLink-v1', all=True, default=None)
+    post_roll_v1: PostRollV1 | None = json_field(
+        'postRoll-v1', all=True, default=None)
+    captions_v1: CaptionsV1 = json_field(
+        'captions-v1', all=True, default_factory=CaptionsV1)
     chapters: Chapters | None = None
     eventbrite: Eventbrite | None = None
     share: Share | None = None
-    require_email_v1: RequireEmailV1 | None = None
+    require_email_v1: RequireEmailV1 | None = json_field(
+        'requireEmail-v1', all=True, default=None)
     password_protected_video: PasswordProtectedVideo | None = None
 
 
@@ -525,14 +560,15 @@ class ThumbnailTextOverlay:
     text: str = ''
     include_text_overlay: bool | None = None
     chapters: Chapters | None = None
-    captions_v1: CaptionsV1 | None = None
+    captions_v1: CaptionsV1 | None = json_field(
+        'captions-v1', all=True, default=None)
     is_async: bool | None = json_field('async', all=True, default=None)
 
 
 @dataclass
 class VideoThumbnail:
     """
-    Data dataclass
+    VideoThumbnail dataclass
 
     """
     on: bool
@@ -559,10 +595,12 @@ class Link:
 
     """
     name: str
-    time: int
-    duration: int
+    time: float
+    duration: float
     text: str
     url: str
+    position: str | None = None
+    theme: str | None = None
     conversion_opportunity_id: int | None = None
     conversion_opportunity_key: str | None = None
 
@@ -577,10 +615,14 @@ class PostRollV1:
     rewatch: bool | None = None
     text: str | None = None
     link: str | None = None
-    time: str | None = None
+    time: float | None = None
     auto_size: bool | None = None
     cta_type: str | None = None
     style: Style | None = None
+    alt_text: str | None = None
+    raw: str | None = None
+    image: str | None = None
+    conversion_opportunity_key: str | None = None
 
 
 @dataclass
@@ -624,9 +666,10 @@ class Eventbrite:
     on: bool | None = None
     event_id: str = ''
     text: str = ''
-    time: int | None = None
+    time: float | None = None
     duration: int | None = None
     type: str | None = None
+    conversion_opportunity_key: str | None = None
 
 
 @dataclass
@@ -654,11 +697,12 @@ class RequireEmailV1:
     on: bool | None = None
     top_text: str | None = None
     bottom_text: str | None = None
-    time: str | None = None
+    time: float | None = None
     ask_name: bool | None = None
     allow_skip: bool | None = None
     persistent_turnstile: bool | None = None
     conversion_opportunity_key: str | None = None
+    submit_button_text: str | None = None
     is_async: bool | None = json_field('async', all=True, default=None)
 
 
@@ -691,6 +735,35 @@ class Encrypted:
     password_protect_password: str = ''
 
 
+######################
+#   Video Captions   #
+######################
+
+@dataclass
+class VideoCaptions(JSONWizard, metaclass=display_with_pformat):
+    """
+    Video Captions dataclass
+
+    """
+    class _(JSONWizard.Meta):
+        raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
+
+    language: LanguageCode
+    text: str
+    english_name: str
+    native_name: str
+    is_draft: bool
+
+    @cached_property
+    def approx_total_duration(self) -> float:
+        """Return the approximate duration (in seconds) of the captions.
+
+        This duration is estimated based on the end timestamp in the SRT
+        contents of the captions.
+        """
+        return get_srt_duration(self.text)
+
+
 ###########################
 #   Upload API - Models   #
 ###########################
@@ -709,8 +782,9 @@ class UploadResponse(JSONWizard, metaclass=display_with_pformat):
     hashed_id: str
     id: int
     name: str
-    type: str
+    type: MediaType
     description: str | None
+    account_id: int
     created: datetime
     updated: datetime
     progress: float
@@ -764,7 +838,7 @@ class VideoEmbedData(JSONWizard, metaclass=display_with_pformat):
     # integrations: Integrations
     hls_enabled: bool
     embed_options: Customizations
-    captions: list[Caption] = field(default_factory=list)
+    captions: list[EmbedCaption] = field(default_factory=list)
     transcript: Transcript | None = None
 
     # Not included in GET '/v1/medias' response, but technically
@@ -895,10 +969,10 @@ class Integrations:
 
 
 @dataclass
-class Caption:
+class EmbedCaption:
     """
-    Caption dataclass
+    EmbedCaption dataclass
 
     """
-    language: str
+    language: LanguageCode
     text: str
