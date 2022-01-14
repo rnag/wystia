@@ -257,7 +257,7 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
-.. _on PyPI: https://pypi.org/project/dataclass-wizard/
+.. _on PyPI: https://pypi.org/project/wystia/
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 .. _Quickstart: https://wystia.readthedocs.io/en/latest/usage.html
