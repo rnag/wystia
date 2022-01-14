@@ -33,6 +33,17 @@ A Python wrapper library for the Wistia API
 * Documentation: https://wystia.readthedocs.io.
 * Wistia Developer Docs: https://wistia.com/support/developers.
 
+Quickstart and Examples
+-----------------------
+
+Please see the `Quickstart`_ section in the docs to get set up
+with the Wistia API wrapper library.
+
+There's also an `examples/`_ directory in the project page on GitHub
+with sample scripts that can be run as needed.
+
+.. _Quickstart: https://wystia.readthedocs.io/en/latest/usage.html
+.. _examples/: https://github.com/rnag/wystia/tree/main/examples
 
 Usage
 -----

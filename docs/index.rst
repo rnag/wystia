@@ -7,6 +7,7 @@ Welcome to Wistia API Helper's documentation!
 
    readme
    installation
+   quickstart
    usage
    modules
    contributing
