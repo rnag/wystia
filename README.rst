@@ -33,17 +33,17 @@ A Python wrapper library for the Wistia API
 * Documentation: https://wystia.readthedocs.io.
 * Wistia Developer Docs: https://wistia.com/support/developers.
 
-Quickstart and Examples
------------------------
+Installing Wystia and Supported Versions
+----------------------------------------
 
-Please see the `Quickstart`_ section in the docs to get set up
-with the Wistia API wrapper library.
+The Wystia (Wistia helper) library is available on PyPI, and can
+be installed with ``pip``:
 
-There's also an `examples/`_ directory in the project page on GitHub
-with sample scripts that can be run as needed.
+.. code-block:: shell
 
-.. _Quickstart: https://wystia.readthedocs.io/en/latest/usage.html
-.. _examples/: https://github.com/rnag/wystia/tree/main/examples
+    $ pip install wystia
+
+The ``wystia`` library officially supports **Python 3.7** or higher.
 
 Usage
 -----
@@ -94,12 +94,12 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
     # Update only specific customizations for a video
     # Note the embed options are documented here:
     #   https://wistia.com/support/developers/embed-options
-    new_customizations = Customizations(
+    some_embed_options = Customizations(
         player_color='#e7fad1',
         # Hide comments on the media page
         private=Private(show_comments=False)
     )
-    WistiaApi.update_customizations('video-id', new_customizations)
+    WistiaApi.update_customizations('video-id', some_embed_options)
 
     # Get the Spanish captions on a video
     captions = WistiaApi.get_captions('video-id', LanguageCode.SPANISH)
@@ -169,22 +169,16 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
         print('Disabling captions and AD for the video')
         WistiaHelper.disable_captions_and_ad('video-id')
 
-
-Installing Wystia and Supported Versions
-----------------------------------------
-The Wystia (Wistia helper) library is available on PyPI:
-
-.. code-block:: shell
-
-    $ python -m pip install wystia
-
-The ``wystia`` library officially supports **Python 3.5** or higher.
-
-
 Getting Started
 ---------------
 
-Using the methods on the API classes assume your Wistia API token
+Please see the `Quickstart`_ section in the docs to quickly get up
+and running with the Wistia API wrapper library.
+
+There's also an `examples/`_ directory in the project page on GitHub
+with sample scripts that can be run as needed.
+
+That said, using the methods on the API classes assume your Wistia API token
 has previously been configured, for example via the environment. The API token will
 then be used globally by all the API classes when making requests to the Wistia API.
 
@@ -198,6 +192,9 @@ Another option is to use the global ``configure`` method as shown below:
 
     WistiaDataApi.configure('MY-API-TOKEN')
 
+
+.. _Quickstart: https://wystia.readthedocs.io/en/latest/usage.html
+.. _examples/: https://github.com/rnag/wystia/tree/main/examples
 
 Data API
 --------
