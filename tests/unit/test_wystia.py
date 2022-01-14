@@ -236,8 +236,10 @@ def test_upload_response_methods(mock_video_id):
                  'url': 'http://embed.wistia.com/deliveries/abc.jpg',
                  'width': 100,
                  'height': 60
-             }
-         })
+             },
+         'accountId': 12345
+         },
+    )
 
     assert ur.name == video_name
     assert ur.description == description
