@@ -66,7 +66,7 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
     projects = WistiaApi.list_all_projects(SortBy.NAME)
     project_ids = [p.hashed_id for p in projects]
     # Print the project data as a prettified JSON string
-    print(projects.to_pretty_json())
+    print(projects.prettify())
 
     # Retrieve a list of videos for a Wistia project.
     # Note: If you don't require asset info (such as ADs) on each
@@ -236,7 +236,7 @@ be used to easily display the JSON string representation of the list of dataclas
 
     * ``to_json`` - Convert the list of instances to a JSON string.
 
-    * ``to_pretty_json`` - Convert the list of instances to a *prettified* JSON string.
+    * ``prettify`` - Convert the list of instances to a *prettified* JSON string.
 
 List Medias in a Project
 ========================

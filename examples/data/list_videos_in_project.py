@@ -26,6 +26,6 @@ print('Videos:')
 print('--')
 
 if args.pretty:
-    print(videos.to_pretty_json())
+    print(videos.prettify())
 else:
     print(videos)

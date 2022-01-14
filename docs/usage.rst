@@ -29,7 +29,7 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
     projects = WistiaApi.list_all_projects(SortBy.NAME)
     project_ids = [p.hashed_id for p in projects]
     # Print the project data as a prettified JSON string
-    print(projects.to_pretty_json())
+    print(projects.prettify())
 
     # Retrieve a list of videos for a Wistia project.
     # Note: If you don't require asset info (such as ADs) on each

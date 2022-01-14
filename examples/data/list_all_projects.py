@@ -21,6 +21,6 @@ print('Projects:')
 print('--')
 
 if args.pretty:
-    print(projects.to_pretty_json())
+    print(projects.prettify())
 else:
     print(projects)

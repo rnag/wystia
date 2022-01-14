@@ -37,6 +37,6 @@ if lang:
 else:
     captions = WistiaApi.list_captions(video_id)
     if pretty:
-        print(captions.to_pretty_json())
+        print(captions.prettify())
     else:
         print(captions)

@@ -154,9 +154,9 @@ class Container(list, Generic[W]):
             **encoder_kwargs
         )
 
-    def to_pretty_json(self, encoder: Encoder = json.dumps,
-                       ensure_ascii=False,
-                       **encoder_kwargs) -> str:
+    def prettify(self, encoder: Encoder = json.dumps,
+                 ensure_ascii=False,
+                 **encoder_kwargs) -> str:
         """Convert the list of instances to a *prettified* JSON string."""
         return self.to_json(
             indent=2,

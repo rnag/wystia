@@ -26,6 +26,6 @@ print('Medias:')
 print('--')
 
 if args.pretty:
-    print(medias.to_pretty_json())
+    print(medias.prettify())
 else:
     print(medias)
