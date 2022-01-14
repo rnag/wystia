@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Wistia API Helper'
+project = 'Wystia'
 copyright = "2021, Ritvik Nag"
 author = "Ritvik Nag"
 
@@ -128,7 +128,7 @@ latex_elements = {
 # [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'wystia.tex',
-     'Wistia API Helper Documentation',
+     'Wystia Documentation',
      'Ritvik Nag', 'manual'),
 ]
 
@@ -139,7 +139,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'wystia',
-     'Wistia API Helper Documentation',
+     'Wystia Documentation',
      [author], 1)
 ]
 
@@ -151,7 +151,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'wystia',
-     'Wistia API Helper Documentation',
+     'Wystia Documentation',
      author,
      'wystia',
      'One line description of project.',

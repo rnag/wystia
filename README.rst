@@ -49,6 +49,9 @@ Usage
 
 Sample usage with the `Data API <https://wistia.com/support/developers/data-api>`_:
 
+    Note: The following example makes use of ``WistiaApi``, which is an alias to
+    the class ``WistiaDataApi``.
+
 .. code-block:: python3
 
     from wystia import WistiaApi
@@ -171,13 +174,7 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
 Getting Started
 ---------------
 
-Please see the `Quickstart`_ section in the docs to quickly get up
-and running with the Wistia API wrapper library.
-
-There's also an `examples/`_ directory in the project page on GitHub
-with sample scripts that can be run as needed.
-
-That said, using the methods on the API classes assume your Wistia API token
+Using the methods on the API classes assume your Wistia API token
 has previously been configured, for example via the environment. The API token will
 then be used globally by all the API classes when making requests to the Wistia API.
 
@@ -191,10 +188,15 @@ Another option is to use the global ``configure`` method as shown below:
 
     WistiaDataApi.configure('MY-API-TOKEN')
 
+There is additionally a `Quickstart`_ section in the docs which walks
+through - in more detail - how to get up and running with the
+Wystia library.
+
 Data API
 --------
 
-The wrapper class ``WistiaDataApi`` interacts with the Wistia Data API (docs below):
+The wrapper class ``WistiaDataApi`` (aliased to ``WistiaApi``) interacts
+with the Wistia Data API (docs below):
 
 - https://wistia.com/support/developers/data-api
 
@@ -215,6 +217,29 @@ The following sections in the API have *not* been implemented (mainly as I haven
 
 Tips
 ~~~~
+
+Containers
+==========
+
+In general, the API methods that begin with *list* - such as ``list_project`` -
+will return a ``Container`` object, which essentially acts as a thin wrapper
+around a collection of model classes. For all intents and purposes, this behaves
+exactly the same as a ``list`` object.
+
+One of the main benefits is that it implements a ``__str__`` method, which leverages
+the builtin ``pprint`` module in Python to pretty-print the Python object representation
+of each model or *dataclass* instance; this will format the output more nicely, for example
+whenever ``print(obj)`` is called on the `Container` result.
+
+The ``Container`` objects also implement the following convenience methods, which can
+be used to easily display the JSON string representation of the list of dataclass instances:
+
+    * ``to_json`` - Convert the list of instances to a JSON string.
+
+    * ``to_pretty_json`` - Convert the list of instances to a *prettified* JSON string.
+
+List Medias in a Project
+========================
 
 If you need to retrieve info on videos in a project and you
 don't need complete info such as a list of assets for the video,
@@ -260,5 +285,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 .. _on PyPI: https://pypi.org/project/wystia/
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-.. _Quickstart: https://wystia.readthedocs.io/en/latest/usage.html
-.. _examples/: https://github.com/rnag/wystia/tree/main/examples
+.. _Quickstart: https://wystia.readthedocs.io/en/latest/quickstart.html

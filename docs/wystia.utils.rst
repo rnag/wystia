@@ -27,15 +27,6 @@ wystia.utils.response module
     :undoc-members:
     :show-inheritance:
 
-wystia.utils.types module
--------------------------
-
-.. automodule:: wystia.utils.types
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 Module contents
 ---------------
 
