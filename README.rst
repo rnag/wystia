@@ -93,12 +93,12 @@ Sample usage with the `Data API <https://wistia.com/support/developers/data-api>
     # Update only specific customizations for a video
     # Note the embed options are documented here:
     #   https://wistia.com/support/developers/embed-options
-    some_embed_options = Customizations(
+    sample_embed_options = Customizations(
         player_color='#e7fad1',
         # Hide comments on the media page
         private=Private(show_comments=False)
     )
-    WistiaApi.update_customizations('video-id', some_embed_options)
+    WistiaApi.update_customizations('video-id', sample_embed_options)
 
     # Get the Spanish captions on a video
     captions = WistiaApi.get_captions('video-id', LanguageCode.SPANISH)
