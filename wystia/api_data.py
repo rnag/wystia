@@ -601,11 +601,7 @@ class WistiaDataApi(_BaseWistiaApi):
         except HTTPError as e:
             raise NoSuchMedia(video_id) if r.status_code == 404 else e
 
-        list_of_captions = VideoCaptions.from_list(r.json())
-
-        # Return data as a `Container` type, so it's easier for a user
-        # to format (and visualize) the data as needed.
-        return Container(VideoCaptions, list_of_captions)
+        return VideoCaptions.from_list(r.json())
 
     @classmethod
     def get_captions(

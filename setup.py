@@ -18,7 +18,7 @@ requires = [
     'requests',
     'requests-toolbelt',
     'urllib3',  # should already be installed via requests
-    'dataclass-wizard>=0.18.0,<1.0',
+    'dataclass-wizard>=0.21.0,<1.0',
     'cached-property~=1.5.2; python_version == "3.7"'
 ]
 

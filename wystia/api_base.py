@@ -167,8 +167,7 @@ class _BaseWistiaApi(_BaseApi):
             data.extend(page_data)
 
         if data_model:
-            instances: list[W] = data_model.from_list(data)
-            return Container(data_model, instances)
+            return data_model.from_list(data)
 
         return data
 
