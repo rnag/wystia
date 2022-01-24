@@ -130,7 +130,7 @@ class Project(JSONListWizard, metaclass=display_with_pformat):
     """
     Project dataclass
     """
-    class _(JSONListWizard.Meta):
+    class _(JSONWizard.Meta):
         raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
 
     hashed_id: str
@@ -152,7 +152,7 @@ class Media(JSONListWizard, metaclass=display_with_pformat):
     Media dataclass
 
     """
-    class _(JSONListWizard.Meta):
+    class _(JSONWizard.Meta):
         raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
         skip_defaults = True
 
@@ -700,7 +700,7 @@ class VideoCaptions(JSONListWizard, metaclass=display_with_pformat):
     Video Captions dataclass
 
     """
-    class _(JSONListWizard.Meta):
+    class _(JSONWizard.Meta):
         raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
 
     language: LanguageCode
