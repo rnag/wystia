@@ -37,16 +37,13 @@ __all__ = ['LanguageCode',
            # Upload API models
            'UploadResponse']
 
-import json
-import pprint
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Generic, Iterator, Iterable, Any
+from typing import Iterable, Any
 
-from dataclass_wizard import JSONWizard, json_field
-from dataclass_wizard.abstractions import W
-from dataclass_wizard.type_def import Encoder
+from dataclass_wizard import (JSONWizard, JSONListWizard,
+                              Container, json_field)
 
 from .constants import RAISE_ON_UNKNOWN_KEY
 from .log import LOG
@@ -124,54 +121,12 @@ class MediaStatus(Enum):
     NOT_FOUND = 'not_found'
 
 
-class Container(list, Generic[W]):
-    """
-    List wrapper around a list of :class:`JSONWizard` (or a sub-class)
-    instances.
-    """
-    __slots__ = ('_model', )
-
-    def __init__(self, data_model: type[W], seq: Iterable[W] = ()):
-        super().__init__(seq)
-        self._model = data_model
-
-    def __iter__(self) -> Iterator[W]:
-        return super().__iter__()
-
-    def __str__(self):
-        """Control the value displayed when print(self) is called."""
-        return pprint.pformat(self)
-
-    def to_json(self, encoder: Encoder = json.dumps,
-                ensure_ascii=False,
-                **encoder_kwargs) -> str:
-        """Convert the list of instances to a JSON string."""
-        # noinspection PyArgumentList
-        return self._model.list_to_json(
-            self,
-            encoder=encoder,
-            ensure_ascii=ensure_ascii,
-            **encoder_kwargs
-        )
-
-    def prettify(self, encoder: Encoder = json.dumps,
-                 ensure_ascii=False,
-                 **encoder_kwargs) -> str:
-        """Convert the list of instances to a *prettified* JSON string."""
-        return self.to_json(
-            indent=2,
-            encoder=encoder,
-            ensure_ascii=ensure_ascii,
-            **encoder_kwargs
-        )
-
-
 #########################
 #   Data API - Models   #
 #########################
 
 @dataclass
-class Project(JSONWizard, metaclass=display_with_pformat):
+class Project(JSONListWizard, metaclass=display_with_pformat):
     """
     Project dataclass
     """
@@ -192,7 +147,7 @@ class Project(JSONWizard, metaclass=display_with_pformat):
 
 
 @dataclass
-class Media(JSONWizard, metaclass=display_with_pformat):
+class Media(JSONListWizard, metaclass=display_with_pformat):
     """
     Media dataclass
 
@@ -271,7 +226,7 @@ class Asset:
 
 
 @dataclass
-class Video(Media, JSONWizard, metaclass=display_with_pformat):
+class Video(Media, JSONListWizard, metaclass=display_with_pformat):
     """
     Video dataclass
 
@@ -740,7 +695,7 @@ class Encrypted:
 ######################
 
 @dataclass
-class VideoCaptions(JSONWizard, metaclass=display_with_pformat):
+class VideoCaptions(JSONListWizard, metaclass=display_with_pformat):
     """
     Video Captions dataclass
 

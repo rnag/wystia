@@ -18,7 +18,7 @@ requires = [
     'requests',
     'requests-toolbelt',
     'urllib3',  # should already be installed via requests
-    'dataclass-wizard>=0.18.0,<1.0',
+    'dataclass-wizard>=0.21.0,<1.0',
     'cached-property~=1.5.2; python_version == "3.7"'
 ]
 
@@ -32,7 +32,7 @@ history = (here / 'HISTORY.rst').read_text()
 
 setup(
     name='wystia',
-    version='1.0.0',
+    version='1.1.0',
     description='A Python wrapper library for the Wistia API',
     long_description=readme + '\n\n' + history,
     author='Ritvik Nag',
