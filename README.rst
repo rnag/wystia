@@ -36,13 +36,13 @@ A Python wrapper library for the Wistia API
 Installation
 ------------
 
-The Wystia (Wistia helper) library is available `on PyPI`_, and can be installed with ``pip``:
+The Wystia library is available `on PyPI`_, and can be installed with ``pip``:
 
 .. code-block:: shell
 
     $ pip install wystia
 
-The ``wystia`` library officially supports **Python 3.7** or higher.
+You'll also need to create an access token as outlined `in the docs`_.
 
 Usage
 -----
@@ -222,7 +222,7 @@ Containers
 ==========
 
 In general, the API methods that begin with *list* - such as ``list_project`` -
-will return a ``Container`` object, which essentially acts as a thin wrapper
+will return a `Container`_ object, which essentially acts as a thin wrapper
 around a collection of model classes. For all intents and purposes, this behaves
 exactly the same as a ``list`` object.
 
@@ -283,6 +283,8 @@ Credits
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _on PyPI: https://pypi.org/project/wystia/
+.. _in the docs: https://wistia.com/support/developers/data-api#creating-and-managing-access-tokens
+.. _Container: https://dataclass-wizard.readthedocs.io/en/latest/dataclass_wizard.html?highlight=container#dataclass_wizard.Container
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 .. _Quickstart: https://wystia.readthedocs.io/en/latest/quickstart.html
