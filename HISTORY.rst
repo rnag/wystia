@@ -2,6 +2,17 @@
 History
 =======
 
+1.1.0 (2022-01-27)
+------------------
+
+* Refactor any model classes that would be returned in *list* API
+  calls to subclass from ``JSONListWizard`` instead of ``JSONWizard``,
+  simply so that ``Container`` objects will be returned by default.
+
+* Refactor to import ``Container`` from the ``dataclass-wizard`` library
+  instead. For backwards compatibility reasons, the ``models`` module
+  still exports the *Container* namespace.
+
 1.0.0 (2022-01-14)
 ------------------
 
