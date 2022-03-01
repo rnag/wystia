@@ -9,5 +9,5 @@ coverage==6.3.2
 Sphinx==4.4.0
 twine==3.8.0
 # Test requirements
-pytest==6.2.5
+pytest==7.0.1
 pytest-mock==3.7.0
