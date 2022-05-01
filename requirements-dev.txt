@@ -7,7 +7,7 @@ pylint==2.13.7
 tox==3.25.0
 coverage==6.3.2
 Sphinx==4.5.0
-twine==3.7.1
+twine==4.0.0
 # Test requirements
 pytest==6.2.5
 pytest-mock==3.7.0
