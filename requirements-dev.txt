@@ -6,7 +6,7 @@ flake8==4.0.1
 pylint==2.14.0
 tox==3.25.0
 coverage==6.4
-Sphinx==4.3.2
+Sphinx==5.0.0
 twine==3.7.1
 # Test requirements
 pytest==6.2.5
