@@ -1,13 +1,13 @@
-pip==22.0.2
+pip==22.1.2
 bump2version==1.0.1
 wheel==0.37.1
-watchdog[watchmedo]==2.1.6
+watchdog[watchmedo]==2.1.9
 flake8==4.0.1
-pylint==2.12.2
-tox==3.24.5
-coverage==6.3
-Sphinx==4.3.2
-twine==3.7.1
+pylint==2.14.4
+tox==3.25.1
+coverage==6.4.1
+Sphinx==5.0.2
+twine==4.0.1
 # Test requirements
-pytest==6.2.5
-pytest-mock==3.7.0
+pytest==7.1.2
+pytest-mock==3.8.1
