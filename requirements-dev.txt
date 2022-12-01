@@ -2,7 +2,7 @@ pip==22.3.1
 bump2version==1.0.1
 wheel==0.38.4
 watchdog[watchmedo]==2.1.9
-flake8==4.0.1
+flake8==6.0.0
 pylint==2.12.2
 tox==3.24.5
 coverage==6.3
