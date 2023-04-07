@@ -141,6 +141,10 @@ def test_video_embed_data_methods(mock_video_id):
                                     'name': video_name,
                                     'createdAt': created_ts,
                                     'duration': duration,
+                                    'privacyMode': False,
+                                    'mediaId': 321,
+                                    'accountId': 123,
+                                    'analyticsHost': '',
                                     "assets": [
                                         {
                                             "type": "original",
@@ -229,6 +233,7 @@ def test_upload_response_methods(mock_video_id):
          'created': created_string,
          'updated': created_string,
          'progress': '0',
+         'archived': False,
          'status': status,
          'duration': duration,
          'thumbnail':

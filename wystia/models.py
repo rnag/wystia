@@ -238,6 +238,7 @@ class Video(Media, JSONListWizard, metaclass=display_with_pformat):
     # Override the type annotations as needed.
     duration: float = 0.0
     project: ProjectInfo = None
+    archived: bool | None = None
 
     # Not included in GET '/v1/medias' response, but technically
     # still part of video metadata.
@@ -409,6 +410,8 @@ class Customizations(JSONWizard, metaclass=display_with_pformat):
         raise_on_unknown_json_key = RAISE_ON_UNKNOWN_KEY
         skip_defaults = True
 
+    vulcan: bool = True
+    anonymize_ip: bool = True
     player_color: str = ''
     still_url: str | None = None
     unaltered_still_image_asset: UnalteredStillImageAsset | None = None
@@ -740,6 +743,7 @@ class UploadResponse(JSONWizard, metaclass=display_with_pformat):
     type: MediaType
     description: str | None
     account_id: int
+    archived: bool
     created: datetime
     updated: datetime
     progress: float
@@ -771,6 +775,10 @@ class VideoEmbedData(JSONWizard, metaclass=display_with_pformat):
     stats: EmbedStats
     distillery_url: str
     account_key: str
+    privacy_mode: bool
+    media_id: int
+    account_id: int
+    analytics_host: str
     media_key: str
     type: str
     media_type: str
@@ -779,7 +787,7 @@ class VideoEmbedData(JSONWizard, metaclass=display_with_pformat):
     branding: bool
     enable_customer_logo: bool
     seo_description: str
-    preload_preference: Any
+    preload_preference: str
     flash_player_url: str
     show_about: bool
     first_embed_for_account: bool
@@ -789,11 +797,11 @@ class VideoEmbedData(JSONWizard, metaclass=display_with_pformat):
     tracking_transmit_interval: int
     # Annotating this field as a generic `dict` type for now, because
     # I've not seen this feature used before.
-    integrations: dict
+    integrations: dict[str, str]
     # integrations: Integrations
-    hls_enabled: bool
     embed_options: Customizations
     captions: list[EmbedCaption] = field(default_factory=list)
+    hls_enabled: bool = False
     transcript: Transcript | None = None
 
     # Not included in GET '/v1/medias' response, but technically

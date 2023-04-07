@@ -2,6 +2,13 @@
 History
 =======
 
+1.2.0 (2023-04-07)
+------------------
+
+* Update model classes to support *new* populated fields, such as ``archived`` (a ``bool`` field), as otherwise it breaks de-serialization by default.
+* Update to replace plain ``dict`` annotation with ``dict[str, str]``, as previously it was resulting in errors when parsing the class annotations.
+* Upgrade dependencies in ``requirements-dev.txt``.
+
 1.1.0 (2022-01-27)
 ------------------
 
