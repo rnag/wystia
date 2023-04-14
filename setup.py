@@ -11,7 +11,7 @@ package_name = 'wystia'
 packages = [
     package_name,
     f'{package_name}.utils',
-    f'{package_name}.utils.parse'
+    f'{package_name}.utils.parse',
 ]
 
 requires = [
@@ -19,12 +19,12 @@ requires = [
     'requests-toolbelt',
     'urllib3',  # should already be installed via requests
     'dataclass-wizard>=0.21.0,<1.0',
-    'cached-property~=1.5.2; python_version == "3.7"'
+    'cached-property~=1.5.2; python_version == "3.7"',
 ]
 
 test_requirements = [
     'pytest>=6',
-    'pytest-mock~=3.6.1'
+    'pytest-mock~=3.6.1',
 ]
 
 readme = (here / 'README.rst').read_text()
@@ -43,8 +43,11 @@ setup(
     python_requires='>=3.7',
     install_requires=requires,
     license='MIT',
-    keywords=['wistia', 'wistia api', 'wystia',
-              'wistia data api', 'wistia upload api'],
+    keywords=['wistia',
+              'api',
+              'wrapper',
+              'data api',
+              'upload api'],
     classifiers=[
         # Ref: https://pypi.org/classifiers/
         'Development Status :: 5 - Production/Stable',
@@ -58,6 +61,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python'
     ],
     test_suite='tests',
