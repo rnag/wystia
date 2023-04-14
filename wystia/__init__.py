@@ -28,7 +28,7 @@ WistiaApi = WistiaDataApi
 
 __author__ = 'Ritvik Nag'
 __email__ = 'rv.kvetch@gmail.com'
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 
 # Set up logging to ``/dev/null`` like a library is supposed to.
