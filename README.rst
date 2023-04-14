@@ -283,7 +283,7 @@ Credits
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _on PyPI: https://pypi.org/project/wystia/
-.. _in the docs: https://wistia.com/support/developers/data-api#creating-and-managing-access-tokens
+.. _in the docs: https://wistia.com/support/developers/making-api-requests#creating-and-managing-access-tokens
 .. _Container: https://dataclass-wizard.readthedocs.io/en/latest/dataclass_wizard.html?highlight=container#dataclass_wizard.Container
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
