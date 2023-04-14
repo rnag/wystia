@@ -2,6 +2,14 @@
 History
 =======
 
+1.2.2 (2023-04-14)
+------------------
+
+**Features and Improvements**
+
+* Update ``keywords`` for the package.
+* Add `Python 3.11` to the list of supported versions.
+
 1.2.1 (2023-04-14)
 ------------------
 
@@ -29,6 +37,8 @@ History
 
 1.1.0 (2022-01-27)
 ------------------
+
+**Features and Improvements**
 
 * Refactor any model classes that would be returned in *list* API
   calls to subclass from ``JSONListWizard`` instead of ``JSONWizard``,
