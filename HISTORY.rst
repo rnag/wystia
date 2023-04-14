@@ -2,12 +2,30 @@
 History
 =======
 
+1.2.1 (2023-04-14)
+------------------
+
+**Bugfixes**
+
+* The ``Media`` class did not have the ``archived`` (``bool``) field, which
+  was resulting in errors when ``list_project()`` was called.
+
+  Therefore, moved over this field from ``Video`` to ``Media`` instead (which is the
+  super-class) so that this issue can be resolved.
+
 1.2.0 (2023-04-07)
 ------------------
 
-* Update model classes to support *new* populated fields, such as ``archived`` (a ``bool`` field), as otherwise it breaks de-serialization by default.
-* Update to replace plain ``dict`` annotation with ``dict[str, str]``, as previously it was resulting in errors when parsing the class annotations.
+**Features and Improvements**
+
+* Update model classes to support *new* populated fields, such as ``archived`` (a ``bool`` field), as otherwise it breaks de-serialization by default -- credits to `@KaneDM`_.
 * Upgrade dependencies in ``requirements-dev.txt``.
+
+**Bugfixes**
+
+* Update to replace plain ``dict`` annotation with ``dict[str, str]``, as previously it was resulting in errors when parsing the class annotations.
+
+.. _@KaneDM: https://github.com/KaneDM
 
 1.1.0 (2022-01-27)
 ------------------

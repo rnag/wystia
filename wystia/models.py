@@ -162,6 +162,7 @@ class Media(JSONListWizard, metaclass=display_with_pformat):
     type: MediaType
     created: datetime
     updated: datetime
+    archived: bool | None = None
     # Note: only videos have this attribute set; thumbnails and other
     # medias don't.
     duration: float | None = None
@@ -238,7 +239,6 @@ class Video(Media, JSONListWizard, metaclass=display_with_pformat):
     # Override the type annotations as needed.
     duration: float = 0.0
     project: ProjectInfo = None
-    archived: bool | None = None
 
     # Not included in GET '/v1/medias' response, but technically
     # still part of video metadata.
