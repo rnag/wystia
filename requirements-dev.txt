@@ -5,7 +5,7 @@ watchdog[watchmedo]==5.0.3
 # flake8==5.0.4
 pylint==3.3.1
 tox==4.21.0
-coverage==7.2.3
+coverage==7.6.1
 Sphinx==5.3.0
 twine==4.0.2
 # Test requirements
