@@ -4,7 +4,7 @@ wheel==0.45.1
 watchdog[watchmedo]==6.0.0
 # flake8==5.0.4
 pylint==3.3.3
-tox==4.4.11
+tox==4.23.2
 coverage==7.2.3
 Sphinx==5.3.0
 twine==4.0.2
