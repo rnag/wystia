@@ -10,4 +10,4 @@ Sphinx==9.1.0
 twine==6.2.0
 # Test requirements
 pytest==9.0.3
-pytest-mock==3.10.0
+pytest-mock==3.15.1
